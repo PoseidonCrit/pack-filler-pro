@@ -1,83 +1,129 @@
-//src/config.js
-// This file handles loading and saving the script's configuration.
-// It includes logic for migrating configuration from older versions.
-// Depends on: Global variable 'config' (declared in main script),
-// Constants (CONFIG_KEY, DEFAULT_CONFIG - defined in constants.js),
-// Visual Feedback (showToast - defined in feedback.js)
+console.log('Pack Filler Pro (Simplified): src/config.js started execution.'); // <-- THIS MUST BE THE VERY FIRST LINE OF CODE
+
+// This file handles loading and saving the script's configuration using Tampermonkey's storage API.
+// Depends on: GM_getValue, GM_setValue (granted in main script), Constants (CONFIG_STORAGE_KEY - defined in constants.js)
+
+// --- Default Configuration ---
+// This object defines the default settings for the script.
+// These defaults are used if no configuration is found in storage.
+const DEFAULT_CONFIG = {
+    version: GM_info.script.version, // Store the script version with the config
+    panelVisible: true, // Whether the panel should be visible by default
+    panelPos: { top: '120px', right: '30px', left: 'auto', bottom: 'auto' }, // Default panel position
+
+    // Last used fill settings
+    lastMode: 'fixed', // 'fixed', 'max', 'unlimited', 'clear'
+    lastCount: 24, // Number of packs to fill (0 for all visible)
+    lastFixedQty: 9, // Fixed quantity for 'fixed' and 'unlimited' modes
+    lastMinQty: 0, // Minimum quantity for 'max' mode
+    lastMaxQty: 5, // Maximum quantity for 'max' mode
+    lastClear: false, // Whether to clear packs before filling
+
+    // Other settings
+    loadFullPage: false, // Whether to automatically load all packs on page load
+};
+
+// Ensure CONFIG_STORAGE_KEY is available from constants.js
+if (typeof CONFIG_STORAGE_KEY === 'undefined') {
+     console.error("Pack Filler Pro: CONFIG_STORAGE_KEY constant not available from constants.js!");
+     // Define a fallback key if constants.js failed to load
+     var CONFIG_STORAGE_KEY = 'packFillerProConfig'; // Use var for fallback global scope
+}
+
 
 /**
  * Loads the configuration from Tampermonkey storage.
- * Handles migration from older config versions.
+ * Merges saved config with default config to ensure all properties exist.
+ * Handles potential parsing errors or outdated config versions.
  * @returns {object} The loaded or default configuration object.
+ * Depends on: GM_getValue, CONFIG_STORAGE_KEY, DEFAULT_CONFIG
  */
 function loadConfig() {
-    const raw = GM_getValue(CONFIG_KEY);
-    let cfg = { ...DEFAULT_CONFIG }; // Start with defaults
+    console.log('Pack Filler Pro (Simplified): Loading config from storage...');
+    let savedConfig = GM_getValue(CONFIG_STORAGE_KEY, null); // Get saved config (or null if none)
+    let configToUse = { ...DEFAULT_CONFIG }; // Start with default config
 
-    if (raw) {
+    if (savedConfig !== null) {
         try {
-            const parsed = JSON.parse(raw);
+            // Attempt to parse the saved string as JSON
+            // GM_getValue with a default of null might return the string directly,
+            // or Tampermonkey might handle JSON parsing depending on version/environment.
+            // Explicitly parsing ensures consistency.
+            const parsedConfig = typeof savedConfig === 'string' ? JSON.parse(savedConfig) : savedConfig;
 
-            // --- Config Migration Logic ---
-            // Compares the saved config version with the current script's default version.
-            if (parsed.version && parsed.version >= DEFAULT_CONFIG.version) {
-                // Saved config is the same version or newer - load directly (merge over defaults)
-                cfg = { ...cfg, ...parsed };
-            } else {
-                // Saved config is older - selectively merge known compatible fields.
-                // This prevents errors if the structure of older configs is very different.
-                console.warn(`Pack Filler Pro: Migrating config from v${parsed.version || 'unknown'} to v${DEFAULT_CONFIG.version}`);
-                cfg = {
-                    ...cfg, // Keep new defaults for potentially new/changed fields
-                    // Explicitly list fields you want to carry over from older versions:
-                    lastMode: parsed.lastMode ?? cfg.lastMode, // Use ?? to keep default if parsed value is null/undefined
-                    lastCount: parsed.lastCount ?? cfg.lastCount,
-                    lastFixedQty: parsed.lastFixedQty ?? cfg.lastFixedQty,
-                    lastMinQty: parsed.lastMinQty ?? cfg.lastMinQty,
-                    lastMaxQty: parsed.lastMaxQty ?? cfg.lastMaxQty,
-                    lastClear: parsed.lastClear ?? cfg.lastClear,
-                    loadFullPage: parsed.loadFullPage ?? cfg.loadFullPage,
-                    panelVisible: parsed.panelVisible ?? cfg.panelVisible,
-                    // Panel position might change format, default might be safer if migration is complex
-                    panelPos: parsed.panelPos ?? cfg.panelPos,
-                    // Add other fields here as config evolves in future versions
-                };
-                // Update the version number in the config after migration
-                cfg.version = DEFAULT_CONFIG.version;
-                console.log("Pack Filler Pro: Config migration complete. Saving new config.");
-                saveConfig(cfg); // Save the migrated config immediately
-            }
+            // Merge saved config over defaults.
+            // This preserves new default properties if the saved config is older.
+            configToUse = { ...configToUse, ...parsedConfig };
+
+            // Optional: Handle config version migration if needed in the future
+            // if (configToUse.version !== GM_info.script.version) {
+            //     console.log(`Pack Filler Pro: Migrating config from v${configToUse.version} to v${GM_info.script.version}`);
+            //     // Add migration logic here if config structure changes between versions
+            //     configToUse.version = GM_info.script.version; // Update version
+            //     saveConfig(configToUse); // Save the migrated config
+            // }
+
+            console.log('Pack Filler Pro (Simplified): Config loaded and merged.', configToUse);
+
         } catch (e) {
-            console.error("Pack Filler Pro: Error parsing config, using defaults.", e);
-            // showToast is called here, but depends on 'feedback.js'.
-            // Ensure feedback.js is required before config.js in the main script if you uncomment this.
-            // showToast('Error loading configuration. Using defaults.', 'error');
+            console.error('Pack Filler Pro (Simplified): Failed to parse saved config, using default.', e);
+            // If parsing fails, stick with the default configToUse
+            // Show a toast message about the error
+            // Ensure showToast is available (from feedback.js)
+            if (typeof showToast === 'function') {
+                 showToast('Error loading saved settings. Using defaults.', 'error', 3000);
+            }
         }
+    } else {
+        console.log('Pack Filler Pro (Simplified): No saved config found, using default.');
     }
 
-    // Final check to ensure critical fields exist, even after loading/migration
-    cfg.panelPos = cfg.panelPos ?? { top: '120px', right: '30px' };
-    cfg.version = DEFAULT_CONFIG.version; // Ensure version is always current in the loaded config object
-    return cfg;
+    // Ensure panelPos has all expected properties, even if not fully saved
+     if (!configToUse.panelPos) {
+          configToUse.panelPos = { top: '120px', right: '30px', left: 'auto', bottom: 'auto' };
+     } else {
+          // Ensure all position properties exist, merging saved over defaults
+          configToUse.panelPos = {
+               top: configToUse.panelPos.top || DEFAULT_CONFIG.panelPos.top,
+               right: configTouse.panelPos.right || DEFAULT_CONFIG.panelPos.right,
+               left: configToUse.panelPos.left || DEFAULT_CONFIG.panelPos.left,
+               bottom: configToUse.panelPos.bottom || DEFAULT_CONFIG.panelPos.bottom,
+          };
+     }
 
+
+    return configToUse;
+}
 
 /**
- * Saves the current configuration to Tampermonkey storage.
- * @param {object} [cfg=config] - The configuration object to save. Defaults to the global config variable.
+ * Saves the current configuration object to Tampermonkey storage.
+ * @param {object} [configObj=config] - The configuration object to save. Defaults to the global config variable.
+ * Depends on: GM_setValue, CONFIG_STORAGE_KEY, Global State (config)
  */
-function saveConfig(cfg = config) {
-    // Ensure the current version is always saved
-    cfg.version = DEFAULT_CONFIG.version;
+function saveConfig(configObj = config) {
+    console.log('Pack Filler Pro (Simplified): Saving config to storage...');
     try {
-        GM_setValue(CONFIG_KEY, JSON.stringify(cfg));
-        // console.log("Pack Filler Pro: Config saved."); // Can be noisy, uncomment for debugging
+        // GM_setValue can often handle objects directly, but stringifying is safer
+        // for compatibility across different Tampermonkey versions/browsers.
+        const configString = JSON.stringify(configObj);
+        GM_setValue(CONFIG_STORAGE_KEY, configString);
+        console.log('Pack Filler Pro (Simplified): Config saved successfully.');
+         // Show a toast message about successful save
+         // Ensure showToast is available (from feedback.js)
+         if (typeof showToast === 'function') {
+              // showToast('Settings saved.', 'success', 1000); // Can be noisy, maybe only on explicit save action
+         }
     } catch (e) {
-        console.error("Pack Filler Pro: Error saving config.", e);
-        // showToast is called here, but depends on 'feedback.js'.
-        // Ensure feedback.js is required before config.js in the main script if you uncomment this.
-        // showToast('Error saving configuration.', 'error');
+        console.error('Pack Filler Pro (Simplified): Failed to save config.', e);
+         // Show a toast message about the error
+         // Ensure showToast is available (from feedback.js)
+         if (typeof showToast === 'function') {
+              showToast('Error saving settings.', 'error', 2000);
+         }
     }
 }
 
-// Note: The global 'config' variable is declared in the main script's IIFE.
-// These functions will operate on that global variable when called from the main script.
+// Note: The global 'config' variable is declared with var in the main script's IIFE.
+// Functions in this file (loadConfig, saveConfig) operate on that global variable.
+// Ensure constants.js is required before config.js.
+// Ensure feedback.js is required before config.js if using showToast fallback.
