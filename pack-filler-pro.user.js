@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         🎴 Pack Filler Pro v19.0 (Improved Debug)
 // @namespace    https://ygoprodeck.com
-// @version      19.0.9 // Incrementing version for fixing @require URLs again
+// @version      19.0.14 // Incrementing version for fixing @require URLs again
 // @description  Improved and corrected version for debugging panel display and toggle.
 // @author       5n0 & Gemini
 // @match        https://ygoprodeck.com/pack-sim/*
@@ -111,8 +111,6 @@ var panelElement = null; // Reference to the main panel DOM element once created
         // Note: In the full script, steps like waiting for specific DOM elements (pack inputs),
         // initializing tooltips on page elements, and triggering auto-load would happen here
         // after DOMContentLoaded and before or during initPanel. For this simplified debug,
-        // we focus only on panel creation and menu command registration.
-
     }); // End of DOMContentLoaded listener
 
 
