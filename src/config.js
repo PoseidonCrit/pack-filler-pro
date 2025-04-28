@@ -1,7 +1,8 @@
-console.log('Pack Filler Pro (Simplified): src/config.js started execution.'); // <-- THIS MUST BE THE VERY FIRST LINE OF CODE
+console.log('Pack Filler Pro: src/config.js started execution.'); // <-- THIS MUST BE THE VERY FIRST LINE OF CODE
 
 // This file handles loading and saving the script's configuration using Tampermonkey's storage API.
 // Depends on: GM_getValue, GM_setValue (granted in main script), Constants (CONFIG_STORAGE_KEY - defined in constants.js)
+// Also depends on feedback.js for showToast in case of loading errors.
 
 // --- Default Configuration ---
 // This object defines the default settings for the script.
@@ -23,12 +24,9 @@ const DEFAULT_CONFIG = {
     loadFullPage: false, // Whether to automatically load all packs on page load
 };
 
-// Ensure CONFIG_STORAGE_KEY is available from constants.js
-if (typeof CONFIG_STORAGE_KEY === 'undefined') {
-     console.error("Pack Filler Pro: CONFIG_STORAGE_KEY constant not available from constants.js!");
-     // Define a fallback key if constants.js failed to load
-     var CONFIG_STORAGE_KEY = 'packFillerProConfig'; // Use var for fallback global scope
-}
+// Use a local fallback key if the global CONFIG_STORAGE_KEY from constants.js is not available.
+// Do NOT re-declare it using var or let/const in this fallback.
+const localFallbackConfigStorageKey = 'packFillerProConfig';
 
 
 /**
@@ -36,11 +34,24 @@ if (typeof CONFIG_STORAGE_KEY === 'undefined') {
  * Merges saved config with default config to ensure all properties exist.
  * Handles potential parsing errors or outdated config versions.
  * @returns {object} The loaded or default configuration object.
- * Depends on: GM_getValue, CONFIG_STORAGE_KEY, DEFAULT_CONFIG
+ * Depends on: GM_getValue, CONFIG_STORAGE_KEY (from constants.js), DEFAULT_CONFIG, showToast (from feedback.js)
  */
 function loadConfig() {
-    console.log('Pack Filler Pro (Simplified): Loading config from storage...');
-    let savedConfig = GM_getValue(CONFIG_STORAGE_KEY, null); // Get saved config (or null if none)
+    console.log('Pack Filler Pro: Loading config from storage...');
+
+    // Determine which storage key to use: the one from constants.js or the local fallback.
+    const storageKey = (typeof CONFIG_STORAGE_KEY !== 'undefined') ? CONFIG_STORAGE_KEY : localFallbackConfigStorageKey;
+
+    if (typeof CONFIG_STORAGE_KEY === 'undefined') {
+         console.error("Pack Filler Pro: CONFIG_STORAGE_KEY constant not available from constants.js! Using local fallback key:", storageKey);
+         // Ensure showToast is available
+         if (typeof showToast === 'function') {
+              showToast("Warning: Constants file not fully loaded. Using fallback settings key.", 'warning', 3000);
+         }
+    }
+
+
+    let savedConfig = GM_getValue(storageKey, null); // Get saved config (or null if none)
     let configToUse = { ...DEFAULT_CONFIG }; // Start with default config
 
     if (savedConfig !== null) {
@@ -60,13 +71,13 @@ function loadConfig() {
             //     console.log(`Pack Filler Pro: Migrating config from v${configToUse.version} to v${GM_info.script.version}`);
             //     // Add migration logic here if config structure changes between versions
             //     configToUse.version = GM_info.script.version; // Update version
-            //     saveConfig(configToUse); // Save the migrated config
+            //     // saveConfig(configToUse); // Save the migrated config - might be risky here if saveConfig itself is broken
             // }
 
-            console.log('Pack Filler Pro (Simplified): Config loaded and merged.', configToUse);
+            console.log('Pack Filler Pro: Config loaded and merged.', configToUse);
 
         } catch (e) {
-            console.error('Pack Filler Pro (Simplified): Failed to parse saved config, using default.', e);
+            console.error('Pack Filler Pro: Failed to parse saved config, using default.', e);
             // If parsing fails, stick with the default configToUse
             // Show a toast message about the error
             // Ensure showToast is available (from feedback.js)
@@ -75,7 +86,7 @@ function loadConfig() {
             }
         }
     } else {
-        console.log('Pack Filler Pro (Simplified): No saved config found, using default.');
+        console.log('Pack Filler Pro: No saved config found, using default.');
     }
 
     // Ensure panelPos has all expected properties, even if not fully saved
@@ -85,7 +96,7 @@ function loadConfig() {
           // Ensure all position properties exist, merging saved over defaults
           configToUse.panelPos = {
                top: configToUse.panelPos.top || DEFAULT_CONFIG.panelPos.top,
-               right: configTouse.panelPos.right || DEFAULT_CONFIG.panelPos.right,
+               right: configToUse.panelPos.right || DEFAULT_CONFIG.panelPos.right,
                left: configToUse.panelPos.left || DEFAULT_CONFIG.panelPos.left,
                bottom: configToUse.panelPos.bottom || DEFAULT_CONFIG.panelPos.bottom,
           };
@@ -98,23 +109,32 @@ function loadConfig() {
 /**
  * Saves the current configuration object to Tampermonkey storage.
  * @param {object} [configObj=config] - The configuration object to save. Defaults to the global config variable.
- * Depends on: GM_setValue, CONFIG_STORAGE_KEY, Global State (config)
+ * Depends on: GM_setValue, CONFIG_STORAGE_KEY (from constants.js), Global State (config), showToast (from feedback.js)
  */
 function saveConfig(configObj = config) {
-    console.log('Pack Filler Pro (Simplified): Saving config to storage...');
+    console.log('Pack Filler Pro: Saving config to storage...');
+
+    // Determine which storage key to use: the one from constants.js or the local fallback.
+    const storageKey = (typeof CONFIG_STORAGE_KEY !== 'undefined') ? CONFIG_STORAGE_KEY : localFallbackConfigStorageKey;
+
+    if (typeof CONFIG_STORAGE_KEY === 'undefined') {
+         console.error("Pack Filler Pro: CONFIG_STORAGE_KEY constant not available from constants.js! Saving with local fallback key:", storageKey);
+         // showToast about this error is handled in loadConfig if constants.js failed
+    }
+
     try {
         // GM_setValue can often handle objects directly, but stringifying is safer
         // for compatibility across different Tampermonkey versions/browsers.
         const configString = JSON.stringify(configObj);
-        GM_setValue(CONFIG_STORAGE_KEY, configString);
-        console.log('Pack Filler Pro (Simplified): Config saved successfully.');
+        GM_setValue(storageKey, configString);
+        console.log('Pack Filler Pro: Config saved successfully.');
          // Show a toast message about successful save
          // Ensure showToast is available (from feedback.js)
          if (typeof showToast === 'function') {
               // showToast('Settings saved.', 'success', 1000); // Can be noisy, maybe only on explicit save action
          }
     } catch (e) {
-        console.error('Pack Filler Pro (Simplified): Failed to save config.', e);
+        console.error('Pack Filler Pro: Failed to save config.', e);
          // Show a toast message about the error
          // Ensure showToast is available (from feedback.js)
          if (typeof showToast === 'function') {
@@ -123,7 +143,7 @@ function saveConfig(configObj = config) {
     }
 }
 
-// Note: The global 'config' variable is declared with var in the main script's IIFE.
+// Note: The global 'config' variable is declared with var in the main script.
 // Functions in this file (loadConfig, saveConfig) operate on that global variable.
 // Ensure constants.js is required before config.js.
 // Ensure feedback.js is required before config.js if using showToast fallback.
