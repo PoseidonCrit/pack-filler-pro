@@ -10,20 +10,50 @@ console.log('Pack Filler Pro (Simplified): src/ui-panel.js started execution.');
 // UI Panel Structure (panelHTML - defined in ui-panel-html.js),
 // GM_registerMenuCommand (granted in main script)
 
+// Global variable to hold the status message element
+var statusAreaElement = null; // Declared with var at the top level of the file
+
+
+/**
+ * Updates the status message displayed in the panel.
+ * @param {string} message - The message to display.
+ * @param {boolean} [append=false] - If true, append the message; otherwise, replace the current message.
+ */
+function updateStatus(message, append = false) {
+    // Ensure the status area element exists
+    if (!statusAreaElement) {
+        console.warn('Pack Filler Pro (Simplified): Status area element not found to update status.');
+        // Fallback to console log if the UI element isn't ready
+        console.log('Pack Filler Pro (Simplified) Status:', message);
+        return;
+    }
+
+    if (append) {
+        statusAreaElement.innerHTML += '<br>' + message; // Use innerHTML to allow line breaks
+    } else {
+        statusAreaElement.innerHTML = message;
+    }
+     console.log('Pack Filler Pro (Simplified): Status updated:', message);
+}
+
 
 /**
  * Creates the main panel element and appends it to the document body.
  * Sets initial position and visibility based on the current configuration.
+ * Adds event listeners to panel controls (only close button in this simplified version).
  * (Dragging is disabled in this simplified version).
  * @returns {Element|null} The created panel element or null if creation failed.
  * Depends on: Global State (config, panelElement), Constants (PANEL_ID),
- * UI Panel Structure (panelHTML), showToast, saveConfig
+ * UI Panel Structure (panelHTML), showToast, saveConfig, updateStatus (defined above)
  */
 function createPanel() {
     console.log('Pack Filler Pro (Simplified): Starting createPanel()...');
+    updateStatus('Creating panel...'); // Update status
+
     // Check if panelElement is already set (declared with var at top level)
     if (panelElement) {
          console.log('Pack Filler Pro (Simplified): Panel already exists (global variable is set).');
+         updateStatus('Panel already exists.'); // Update status
         return panelElement; // Return existing panel if already created
     }
 
@@ -34,6 +64,7 @@ function createPanel() {
     if (typeof panelHTML !== 'string') {
          console.error("Pack Filler Pro (Simplified): panelHTML string not available from ui-panel-html.js!");
          showToast("Error creating UI panel: HTML missing.", 'error'); // Depends on showToast
+         updateStatus('Error: Panel HTML missing.', false); // Update status
          return null;
     }
     panelContainer.innerHTML = panelHTML.trim(); // Use trim() to remove leading/trailing whitespace
@@ -42,11 +73,21 @@ function createPanel() {
     // Assign it to the global panelElement variable (declared with var in main script).
     panelElement = panelContainer.firstElementChild;
 
+    // Store the status area element reference globally
+    if (panelElement) {
+        statusAreaElement = panelElement.querySelector('.pfp-status-area');
+         if (!statusAreaElement) {
+              console.warn('Pack Filler Pro (Simplified): Status area element .pfp-status-area not found in panel HTML.');
+         }
+    }
+
+
     // Validate that the element was created and has the correct ID.
     // Ensure PANEL_ID is available from constants.js
      if (typeof PANEL_ID === 'undefined') {
           console.error("Pack Filler Pro (Simplified): PANEL_ID constant not available from constants.js!");
           showToast("Error creating UI panel: Constants missing.", 'error'); // Depends on showToast
+          updateStatus('Error: Constants missing.', false); // Update status
           panelElement = null; // Reset the global variable if creation failed
           return null;
      }
@@ -54,6 +95,7 @@ function createPanel() {
     if (!panelElement || panelElement.id !== PANEL_ID) {
          console.error("Pack Filler Pro (Simplified): Error creating panel element from HTML structure or ID mismatch.");
          showToast("Error creating UI panel.", 'error'); // Depends on showToast
+         updateStatus('Error: Panel creation failed.', false); // Update status
          panelElement = null; // Reset the global variable if creation failed
          return null;
     }
@@ -70,8 +112,10 @@ function createPanel() {
         panelElement.style.right = config.panelPos.right || 'auto';
         panelElement.style.bottom = config.panelPos.bottom || 'auto';
          console.log('Pack Filler Pro (Simplified): Panel position set from config.');
+         updateStatus('Position set from config.', true); // Append status
     } else {
          console.warn('Pack Filler Pro (Simplified): Config or panelPos missing, using default position.');
+          updateStatus('Using default position.', true); // Append status
          // Apply a basic default position if config is not available
          panelElement.style.position = 'fixed';
          panelElement.style.top = '120px';
@@ -87,11 +131,14 @@ function createPanel() {
         if (!config.panelVisible) {
             panelElement.classList.add('hidden');
              console.log('Pack Filler Pro (Simplified): Panel initially hidden based on config.');
+             updateStatus('Panel initially hidden.', true); // Append status
         } else {
              console.log('Pack Filler Pro (Simplified): Panel initially visible based on config.');
+             updateStatus('Panel initially visible.', true); // Append status
         }
     } else {
          console.warn('Pack Filler Pro (Simplified): panelVisible config missing, panel will be visible by default.');
+          updateStatus('Config missing, panel visible.', true); // Append status
          // Default to visible if config.panelVisible is missing
          panelElement.classList.remove('hidden');
     }
@@ -118,6 +165,7 @@ function createPanel() {
     // }
 
     console.log('Pack Filler Pro (Simplified): Panel created and added to DOM.');
+    updateStatus('Panel created successfully.'); // Update status
     return panelElement;
 }
 
@@ -128,9 +176,11 @@ function createPanel() {
  */
 function addPanelEventListeners() {
     console.log('Pack Filler Pro (Simplified): Starting addPanelEventListeners()...'); // <-- Added log
+    updateStatus('Adding event listeners...'); // Update status
     // Ensure the panel element exists before trying to add listeners.
     if (!panelElement) {
         console.error('Pack Filler Pro (Simplified): Cannot add listeners, panel element not found.');
+        updateStatus('Error: Panel element not found for listeners.', true); // Append status
         return;
     }
 
@@ -143,8 +193,10 @@ function addPanelEventListeners() {
             setPanelVisibility(false); // Hide the panel (setPanelVisibility defined below)
         });
          console.log('Pack Filler Pro (Simplified): Close button listener added.');
+         updateStatus('Close button listener added.', true); // Append status
     } else {
          console.warn('Pack Filler Pro (Simplified): Close button element not found.');
+          updateStatus('Warning: Close button not found.', true); // Append status
     }
 
 
@@ -169,6 +221,7 @@ function addPanelEventListeners() {
     // Preset button listeners are handled by createPresetButtons, which is commented out.
 
     console.log('Pack Filler Pro (Simplified): Basic panel event listeners added.');
+    updateStatus('Event listeners added.'); // Update status
 }
 
 /**
@@ -181,17 +234,20 @@ function setPanelVisibility(isVisible) {
     console.log('Pack Filler Pro (Simplified): Starting setPanelVisibility()...', isVisible); // <-- Added log
     if (!panelElement) {
         console.error('Pack Filler Pro (Simplified): Panel element not found to set visibility.');
+        updateStatus('Error: Panel element not found for visibility change.', true); // Append status
         return;
     }
 
     if (isVisible) {
         panelElement.classList.remove('hidden');
         console.log('Pack Filler Pro (Simplified): Panel shown.');
+        updateStatus('Panel shown.', false); // Replace status
         // Ensure showToast is available from feedback.js
         if (typeof showToast === 'function') showToast('Pack Filler Pro Panel Shown', 'info', 1500);
     } else {
         panelElement.classList.add('hidden');
         console.log('Pack Filler Pro (Simplified): Panel hidden.');
+        updateStatus('Panel hidden.', false); // Replace status
          // Ensure showToast is available from feedback.js
         if (typeof showToast === 'function') showToast('Pack Filler Pro Panel Hidden', 'info', 1500);
     }
@@ -202,8 +258,10 @@ function setPanelVisibility(isVisible) {
          config.panelVisible = isVisible; // Update global config variable
          saveConfig(); // Save the updated visibility state
          console.log('Pack Filler Pro (Simplified): Panel visibility state saved:', isVisible);
+         updateStatus('Visibility state saved.', true); // Append status
     } else {
          console.error('Pack Filler Pro (Simplified): Cannot save panel visibility state, config or saveConfig missing.');
+         updateStatus('Error: Cannot save visibility state.', true); // Append status
     }
 }
 
@@ -215,22 +273,25 @@ function setPanelVisibility(isVisible) {
  * (Other initialization steps are commented out).
  * Depends on: createPanel, addPanelEventListeners, setPanelVisibility,
  * GM_registerMenuCommand (granted in main script), Global State (config, panelElement),
- * showToast (from feedback.js), saveConfig (from config.js)
+ * showToast (from feedback.js), saveConfig (from config.js), updateStatus (defined above)
  */
 function initPanel() {
     console.log('Pack Filler Pro (Simplified): Starting initPanel()...'); // <-- Added log
+    updateStatus('Starting panel initialization...'); // Update status
 
     // Attempt to create the panel element. Abort initialization if creation fails.
     // Ensure createPanel is available (defined above)
     if (typeof createPanel !== 'function') {
          console.error("Pack Filler Pro (Simplified): createPanel function not available!");
          showToast("Error initializing panel: createPanel missing.", 'error');
+         updateStatus('Error: createPanel function missing.', false); // Update status
          return;
     }
     const panel = createPanel(); // createPanel defined above
     if (!panel) {
         console.error("Pack Filler Pro (Simplified): Panel initialization failed because panel element could not be created.");
         // showToast is called inside createPanel if it fails
+        updateStatus('Error: Panel creation failed.', false); // Update status
         return; // Stop initialization
     }
 
@@ -240,6 +301,7 @@ function initPanel() {
          addPanelEventListeners(); // addPanelEventListeners defined above
     } else {
          console.error("Pack Filler Pro (Simplified): addPanelEventListeners function not available!");
+         updateStatus('Error: addPanelEventListeners function missing.', true); // Append status
     }
 
 
@@ -261,8 +323,10 @@ function initPanel() {
 
      // Register a Tampermonkey menu command to easily toggle the panel's visibility.
      console.log('Pack Filler Pro (Simplified): Checking for GM_registerMenuCommand...');
+     updateStatus('Checking for menu command support...', true); // Append status
      if (typeof GM_registerMenuCommand !== 'undefined') {
           console.log('Pack Filler Pro (Simplified): GM_registerMenuCommand available, registering menu command...');
+           updateStatus('Registering menu command...', true); // Append status
          GM_registerMenuCommand("🎴 Toggle Pack Filler Pro Panel", () => {
               console.log('Pack Filler Pro (Simplified): Menu command triggered.');
               // Check if the global panelElement variable is set.
@@ -273,10 +337,12 @@ function initPanel() {
                         setPanelVisibility(!isHidden); // Toggle visibility
                    } else {
                         console.error("Pack Filler Pro (Simplified): setPanelVisibility function not available!");
+                        updateStatus('Error: setPanelVisibility function missing.', true); // Append status
                    }
               } else {
                    // If the panel element is null, try creating and initializing it again.
                    console.warn('Pack Filler Pro (Simplified): Panel element null in menu command, attempting re-initialization...');
+                   updateStatus('Panel missing, attempting re-init...', false); // Replace status
                    // Ensure showToast is available
                    if (typeof showToast === 'function') showToast('Attempting to initialize panel...', 'info', 1500);
                    initPanel(); // Recursive call - guarded by panelElement check and function availability checks
@@ -286,14 +352,19 @@ function initPanel() {
                         setPanelVisibility(true); // Show the panel if init was successful and it wasn't already visible
                    } else if (!panelElement && typeof showToast === 'function') {
                         showToast('Panel initialization failed again.', 'error', 2000);
+                         updateStatus('Panel re-init failed.', false); // Replace status
                    }
               }
          });
+          console.log('Pack Filler Pro (Simplified): Menu command registered.');
+           updateStatus('Menu command registered.', true); // Append status
      } else {
           console.warn("Pack Filler Pro (Simplified): GM_registerMenuCommand not available. Panel toggle via menu disabled.");
+           updateStatus('Menu command not available.', true); // Append status
      }
 
     console.log('Pack Filler Pro (Simplified): Panel initialization complete.');
+    updateStatus('Panel initialization complete.'); // Update status
 }
 
 
