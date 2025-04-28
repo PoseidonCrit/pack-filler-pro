@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         🎴 Pack Filler Pro v19.0 (Improved Debug)
 // @namespace    https://ygoprodeck.com
-// @version      19.0.8 // Incrementing version for fixing @require URLs again
+// @version      19.0.9 // Incrementing version for fixing @require URLs again
 // @description  Improved and corrected version for debugging panel display and toggle.
 // @author       5n0 & Gemini
 // @match        https://ygoprodeck.com/pack-sim/*
