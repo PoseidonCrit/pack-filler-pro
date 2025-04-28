@@ -1,3 +1,5 @@
+console.log('Pack Filler Pro (Simplified): src/ui-panel.js started execution.'); // <-- THIS MUST BE THE VERY FIRST LINE OF CODE
+
 // This file contains the simplified JavaScript logic for creating, managing, and updating the UI panel.
 // It focuses only on panel creation, basic event listeners (close), and menu command registration.
 // Dependencies are reduced for debugging purposes.
@@ -125,6 +127,7 @@ function createPanel() {
  * Depends on: Global State (panelElement), saveConfig (from config.js), setPanelVisibility (defined below)
  */
 function addPanelEventListeners() {
+    console.log('Pack Filler Pro (Simplified): Starting addPanelEventListeners()...'); // <-- Added log
     // Ensure the panel element exists before trying to add listeners.
     if (!panelElement) {
         console.error('Pack Filler Pro (Simplified): Cannot add listeners, panel element not found.');
@@ -175,6 +178,7 @@ function addPanelEventListeners() {
  * Depends on: Global State (panelElement, config), saveConfig (from config.js), showToast (from feedback.js)
  */
 function setPanelVisibility(isVisible) {
+    console.log('Pack Filler Pro (Simplified): Starting setPanelVisibility()...', isVisible); // <-- Added log
     if (!panelElement) {
         console.error('Pack Filler Pro (Simplified): Panel element not found to set visibility.');
         return;
@@ -214,7 +218,7 @@ function setPanelVisibility(isVisible) {
  * showToast (from feedback.js), saveConfig (from config.js)
  */
 function initPanel() {
-    console.log('Pack Filler Pro (Simplified): Starting initPanel()...');
+    console.log('Pack Filler Pro (Simplified): Starting initPanel()...'); // <-- Added log
 
     // Attempt to create the panel element. Abort initialization if creation fails.
     // Ensure createPanel is available (defined above)
@@ -278,7 +282,7 @@ function initPanel() {
                    initPanel(); // Recursive call - guarded by panelElement check and function availability checks
                    // If initialization was successful this time, show the panel and save state.
                    // Check panelElement again after initPanel call
-                   if(panelElement && typeof setPanelVisibility === 'function' && !config.panelVisible) {
+                   if(panelElement && typeof setPanelVisibility === 'function' && config.panelVisible !== undefined && !config.panelVisible) { // Added check for config.panelVisible existence
                         setPanelVisibility(true); // Show the panel if init was successful and it wasn't already visible
                    } else if (!panelElement && typeof showToast === 'function') {
                         showToast('Panel initialization failed again.', 'error', 2000);
