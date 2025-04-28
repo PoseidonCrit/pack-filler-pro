@@ -50,7 +50,6 @@ const panelHTML = `
                   </div>
              </div>
 
-
             <div class="pfp-input-group pfp-checkbox-group">
                 <input type="checkbox" id="pfp-clear">
                 <label for="pfp-clear" data-pfp-help="Clear all pack quantities to 0 before filling.">Clear All First</label>
