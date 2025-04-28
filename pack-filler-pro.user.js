@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         🎴 Pack Filler Pro v19.0
+// @name         🎴 Pack Filler Pro v19.0 (Further Simplified Debug)
 // @namespace    https://ygoprodeck.com
-// @version      19.0
-// @description  Advanced pack filling with robust config, beautiful UI, Undo/Redo, Presets, and Full Page Loading.
+// @version      19.0.3 // Incrementing version for this simplification
+// @description  Highly simplified version for debugging panel display and toggle.
 // @author       5n0 & Gemini
 // @match        https://ygoprodeck.com/pack-sim/*
 // @grant        GM_addStyle
@@ -10,25 +10,36 @@
 // @grant        GM_getValue
 // @grant        GM_registerMenuCommand
 // @grant        GM_log
-// @require      https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.js
+// // @require      https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.js // Temporarily commented out
 //
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/constants.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/config.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/dom-helpers.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/state-management.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/performance.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/fill-logic.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/presets.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/feedback.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/loading.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/tooltips.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-panel-html.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-css.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-draggable.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-panel.js
-// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/event-listeners.js // Global Event Listeners
+// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/constants.js // Needed for PANEL_ID
+// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/config.js // Needed for basic config load/save (loadConfig, saveConfig)
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/dom-helpers.js // Not needed in this simplified version
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/state-management.js // Not needed in this simplified version
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/performance.js // Not needed in this simplified version
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/fill-logic.js // Not needed in this simplified version
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/presets.js // Not needed in this simplified version
+// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/feedback.js // Needed for showToast
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/loading.js // Not needed in this simplified version
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/tooltips.js // Not needed in this simplified version
+// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-panel-html.js // Needed for panel HTML structure (panelHTML)
+// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-css.js // Needed for panel CSS (addPanelCSS)
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-draggable.js // Not needed in this simplified version
+// @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/ui-panel.js // CRITICAL: Contains initPanel, createPanel, addPanelEventListeners, setPanelVisibility, and menu command logic
+// // @require      https://raw.githubusercontent.com/PoseidonCrit/pack-filler-pro/main/src/event-listeners.js // Not needed in this simplified version
 //
 // ==/UserScript==
+
+// --- Global State Variables ---
+// Declare these variables using 'var' at the VERY TOP LEVEL of the script,
+// OUTSIDE of any function or IIFE. This ensures they are in the scope
+// accessible to all @require'd files when Tampermonkey concatenates and runs them.
+var config = {}; // Holds the current configuration (basic load/save needed)
+var undoStack = []; // Declared but not used in this simplified version
+var redoStack = []; // Declared but not used in this simplified version
+var isFilling = false; // Declared but not used in this simplified version
+var panelElement = null; // Reference to the main panel DOM element (CRITICAL)
+
 
 // This is the main entry point of the script.
 // The code from all @require directives will be loaded and executed before this IIFE runs.
@@ -37,61 +48,51 @@
 (function() {
     'use strict';
 
-    // --- Global State Variables ---
-    // These variables are declared here in the main script's IIFE scope
-    // so they can be accessed and modified by functions from different required modules.
-    let config = {}; // Holds the current configuration (used by config, fill-logic, presets, ui-panel, loading)
-    let undoStack = []; // Stores states for undo (used by state-management, ui-panel)
-    let redoStack = []; // Stores states for redo (used by state-management, ui-panel)
-    let isFilling = false; // Flag for batch updates/filling process (used by performance, state-management, fill-logic, ui-panel)
-    let panelElement = null; // Reference to the main panel DOM element (used by ui-panel, ui-draggable)
+    console.log('Pack Filler Pro (Simplified): Main script IIFE started.');
 
-
-    // --- Main Initialization Logic ---
-    // This is the sequence of steps to initialize the script when the page loads.
+    // The global state variables are declared outside this IIFE using 'var'.
 
     // 1. Load the configuration from storage.
-    config = loadConfig(); // loadConfig is defined in src/config.js
-    console.log("Pack Filler Pro v" + GM_info.script.version + " Initializing...");
-    console.log("Pack Filler Pro: Config loaded.", config);
+    // Ensure loadConfig is available from config.js
+    if (typeof loadConfig === 'function') {
+        config = loadConfig();
+        console.log("Pack Filler Pro (Simplified): Config loaded.", config);
+    } else {
+        console.error("Pack Filler Pro (Simplified): loadConfig function not available from config.js!");
+        // Use a basic default config if loadConfig is missing
+        config = { panelVisible: true, panelPos: { top: '120px', right: '30px' } };
+    }
 
-    // 2. Inject the CSS styles for the UI.
-    addPanelCSS(); // addPanelCSS is defined in src/ui-css.js
 
-    // 3. Wait for a key element (the pack input fields) to be present in the DOM.
-    // This ensures the script doesn't try to interact with elements before they exist,
-    // which is common on dynamic websites.
-    waitForElement(SELECTOR, 15000).then(inputElement => { // SELECTOR is from src/constants.js, waitForElement is from src/loading.js
-        // This block runs if the target element is found within the timeout.
-        console.log('Pack Filler Pro: Target element found, initializing UI and features...');
+    // --- Simplified Main Initialization Logic ---
+    // We'll use a simple DOMContentLoaded listener for this simplified test,
+    // similar to the working Simple Panel Test.
 
-        // 4. Initialize the control panel UI.
-        initPanel(); // initPanel is defined in src/ui-panel.js
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Pack Filler Pro (Simplified): DOMContentLoaded fired, starting panel initialization.');
 
-        // 5. Add tooltips to initial elements on the page (including the panel).
-        addTooltips(); // addTooltips is defined in src/tooltips.js
+        // 2. Inject the CSS styles for the UI.
+        // Ensure addPanelCSS is available from ui-css.js
+        if (typeof addPanelCSS === 'function') {
+             addPanelCSS();
+        } else {
+             console.error("Pack Filler Pro (Simplified): addPanelCSS function not available from ui-css.js!");
+        }
 
-        // 6. Trigger the auto-load full page process if enabled in the config.
-        // This function handles checking the config internally.
-        loadFullPageIfNeeded(); // loadFullPageIfNeeded is defined in src/loading.js
 
-    }).catch(error => {
-        // This block runs if the target element is NOT found within the timeout.
-         console.error('Pack Filler Pro: Could not find target element within timeout.', error);
-         // Show an error toast to the user.
-         showToast('Pack Filler Pro: Could not find pack inputs on the page. Script functionality limited.', 'error', 5000); // showToast is from src/feedback.js
+        // 3. Initialize the control panel UI.
+        // Ensure initPanel is available from ui-panel.js
+        if (typeof initPanel === 'function') {
+             initPanel(); // initPanel is defined in src/ui-panel.js
+        } else {
+             console.error("Pack Filler Pro (Simplified): initPanel function not available from ui-panel.js!");
+        }
 
-         // Still initialize the panel even if no inputs were found, so the user can
-         // potentially change settings or see the UI.
-         initPanel(); // initPanel is defined in src/ui-panel.js
-         // Tooltips will be added to the panel during initPanel.
+        // The rest of the original initialization logic (waitForElement, tooltips, full page load, global event listeners)
+        // is temporarily removed or commented out to simplify the focus.
+
     });
 
-    // 7. Global event listeners (like keyboard shortcuts for Undo/Redo) are handled
-    // by the code in src/event-listeners.js, which is loaded via @require.
-    // No explicit call is needed here, the event listener is attached when that file runs.
-
-
-    // The IIFE finishes execution here after setting up the initialization sequence.
+    console.log('Pack Filler Pro (Simplified): Main script IIFE finished.');
 
 })();
