@@ -1,45 +1,56 @@
-// This file contains the JavaScript logic for creating, managing, and updating the UI panel.
-// It handles creating the panel element, adding event listeners, updating UI elements
-// based on config/state, and initializing the panel lifecycle.
-// Depends on: Global State (config, undoStack, redoStack, isFilling, panelElement - declared in main script),
+// This file contains the simplified JavaScript logic for creating, managing, and updating the UI panel.
+// It focuses only on panel creation, basic event listeners (close), and menu command registration.
+// Dependencies are reduced for debugging purposes.
+// Depends on: Global State (config, panelElement - declared with var in main script),
 // Constants (PANEL_ID - defined in constants.js),
-// Config Management (saveConfig - defined in config.js),
-// DOM Helpers (safeQuery, safeQueryAll - defined in dom-helpers.js),
-// State Management (applyUndo, applyRedo - defined in state-management.js),
-// Fill Logic (fillPacks - defined in fill-logic.js),
-// Presets (createPresetButtons, applyPreset - defined in presets.js),
-// Visual Feedback (showToast - defined in feedback.js),
-// UI Enhancements (addTooltips - defined in tooltips.js),
+// Config Management (saveConfig - defined in config.js), // Needed for saving panel visibility
+// Visual Feedback (showToast - defined in feedback.js), // Needed for toast messages
 // UI Panel Structure (panelHTML - defined in ui-panel-html.js),
-// UI Draggable (makeDraggable - defined in ui-draggable.js)
 // GM_registerMenuCommand (granted in main script)
 
 
 /**
  * Creates the main panel element and appends it to the document body.
  * Sets initial position and visibility based on the current configuration.
- * Makes the panel header draggable.
+ * (Dragging is disabled in this simplified version).
  * @returns {Element|null} The created panel element or null if creation failed.
  * Depends on: Global State (config, panelElement), Constants (PANEL_ID),
- * UI Panel Structure (panelHTML), makeDraggable, safeQuery, showToast
+ * UI Panel Structure (panelHTML), showToast, saveConfig
  */
 function createPanel() {
+    console.log('Pack Filler Pro (Simplified): Starting createPanel()...');
+    // Check if panelElement is already set (declared with var at top level)
     if (panelElement) {
-         console.log('Pack Filler Pro: Panel already exists.');
+         console.log('Pack Filler Pro (Simplified): Panel already exists (global variable is set).');
         return panelElement; // Return existing panel if already created
     }
 
-    console.log('Pack Filler Pro: Attempting to create panel element...');
+    console.log('Pack Filler Pro (Simplified): Attempting to create panel element...');
     // Create a temporary container to parse the panelHTML string.
     const panelContainer = document.createElement('div');
+    // Ensure panelHTML is available from ui-panel-html.js
+    if (typeof panelHTML !== 'string') {
+         console.error("Pack Filler Pro (Simplified): panelHTML string not available from ui-panel-html.js!");
+         showToast("Error creating UI panel: HTML missing.", 'error'); // Depends on showToast
+         return null;
+    }
     panelContainer.innerHTML = panelHTML.trim(); // Use trim() to remove leading/trailing whitespace
 
     // Get the actual panel element (the first child inside the temporary container).
+    // Assign it to the global panelElement variable (declared with var in main script).
     panelElement = panelContainer.firstElementChild;
 
     // Validate that the element was created and has the correct ID.
+    // Ensure PANEL_ID is available from constants.js
+     if (typeof PANEL_ID === 'undefined') {
+          console.error("Pack Filler Pro (Simplified): PANEL_ID constant not available from constants.js!");
+          showToast("Error creating UI panel: Constants missing.", 'error'); // Depends on showToast
+          panelElement = null; // Reset the global variable if creation failed
+          return null;
+     }
+
     if (!panelElement || panelElement.id !== PANEL_ID) {
-         console.error("Pack Filler Pro: Error creating panel element from HTML structure.");
+         console.error("Pack Filler Pro (Simplified): Error creating panel element from HTML structure or ID mismatch.");
          showToast("Error creating UI panel.", 'error'); // Depends on showToast
          panelElement = null; // Reset the global variable if creation failed
          return null;
@@ -49,320 +60,239 @@ function createPanel() {
 
 
     // Set initial position based on the loaded configuration.
-    // Ensure position is 'fixed' and clear conflicting 'right'/'bottom' styles for draggable compatibility.
-    panelElement.style.position = 'fixed';
-    panelElement.style.top = config.panelPos.top;
-    panelElement.style.left = config.panelPos.left || 'auto'; // Use left if saved, default to auto (allows right anchor)
-    panelElement.style.right = config.panelPos.right || 'auto'; // Use right if saved, default to auto
-    panelElement.style.bottom = config.panelPos.bottom || 'auto'; // Use bottom if saved, default to auto
-
-     // Prioritize saved 'right' if 'left' is auto, etc. A more complex logic might be needed
-     // depending on desired anchoring behavior. For simplicity, we assume top/right or top/left.
-     // If both left and right are 'auto', browser default applies. If both are set, 'left' usually wins.
-     // If only one of left/right is 'auto', the other fixed value anchors it.
-     // Let's ensure a default if neither top/left/right/bottom is set meaningfully (though config provides defaults).
+    // Ensure config is available (declared with var in main script and loaded)
+    if (config && config.panelPos) {
+        panelElement.style.position = 'fixed';
+        panelElement.style.top = config.panelPos.top;
+        panelElement.style.left = config.panelPos.left || 'auto';
+        panelElement.style.right = config.panelPos.right || 'auto';
+        panelElement.style.bottom = config.panelPos.bottom || 'auto';
+         console.log('Pack Filler Pro (Simplified): Panel position set from config.');
+    } else {
+         console.warn('Pack Filler Pro (Simplified): Config or panelPos missing, using default position.');
+         // Apply a basic default position if config is not available
+         panelElement.style.position = 'fixed';
+         panelElement.style.top = '120px';
+         panelElement.style.right = '30px';
+         panelElement.style.left = 'auto';
+         panelElement.style.bottom = 'auto';
+    }
 
 
     // Set initial visibility based on the loaded configuration.
-    if (!config.panelVisible) {
-        panelElement.classList.add('hidden');
+    // Ensure config is available
+    if (config && config.hasOwnProperty('panelVisible')) {
+        if (!config.panelVisible) {
+            panelElement.classList.add('hidden');
+             console.log('Pack Filler Pro (Simplified): Panel initially hidden based on config.');
+        } else {
+             console.log('Pack Filler Pro (Simplified): Panel initially visible based on config.');
+        }
+    } else {
+         console.warn('Pack Filler Pro (Simplified): panelVisible config missing, panel will be visible by default.');
+         // Default to visible if config.panelVisible is missing
+         panelElement.classList.remove('hidden');
     }
+
 
     // Append the created panel element to the document body.
     document.body.appendChild(panelElement);
 
-    // Make the panel draggable by dragging its header.
-    const headerElement = safeQuery('.pfp-header', panelElement); // safeQuery depends on dom-helpers.js
-    if (headerElement) {
-        makeDraggable(headerElement, panelElement, (newPos) => { // makeDraggable depends on ui-draggable.js
-             // Callback executed after dragging ends.
-             // Update the panelPos in the global config variable and save it.
-             config.panelPos = newPos;
-             saveConfig(); // saveConfig depends on config.js
-             console.log('Pack Filler Pro: Panel position saved.');
-        });
-    } else {
-        console.warn("Pack Filler Pro: Panel header element not found, dragging disabled.");
-    }
+    // Draggable functionality is commented out in this simplified version.
+    // const headerElement = panelElement.querySelector('.pfp-header');
+    // if (headerElement) {
+    //     makeDraggable(headerElement, panelElement, (newPos) => {
+    //          config.panelPos = newPos;
+    //          // Ensure saveConfig is available from config.js
+    //          if (typeof saveConfig === 'function') {
+    //               saveConfig();
+    //               console.log('Pack Filler Pro (Simplified): Panel position saved.');
+    //          } else {
+    //               console.error("Pack Filler Pro (Simplified): saveConfig function not available!");
+    //          }
+    //     });
+    // } else {
+    //     console.warn("Pack Filler Pro (Simplified): Panel header element not found, dragging disabled.");
+    // }
 
-    console.log('Pack Filler Pro: Panel created and added to DOM.');
+    console.log('Pack Filler Pro (Simplified): Panel created and added to DOM.');
     return panelElement;
 }
 
 /**
- * Adds event listeners to the controls within the panel (buttons, inputs, selects, checkboxes).
- * Updates the configuration and saves it when relevant inputs change.
- * Triggers core actions (fill, clear, undo, redo, apply preset).
- * Depends on: Global State (config), safeQuery, safeQueryAll, fillPacks, clearAllInputs,
- * applyUndo, applyRedo, applyPreset, saveConfig, updatePanelUI, createPresetButtons, addTooltips
+ * Adds basic event listeners to the controls within the panel (only close button in this simplified version).
+ * (Other event listeners are commented out).
+ * Depends on: Global State (panelElement), saveConfig (from config.js), setPanelVisibility (defined below)
  */
 function addPanelEventListeners() {
     // Ensure the panel element exists before trying to add listeners.
     if (!panelElement) {
-        console.error('Pack Filler Pro: Cannot add listeners, panel element not found.');
+        console.error('Pack Filler Pro (Simplified): Cannot add listeners, panel element not found.');
         return;
     }
 
-    console.log('Pack Filler Pro: Adding panel event listeners...');
+    console.log('Pack Filler Pro (Simplified): Adding basic panel event listeners...');
+
     // Event Listener for the Close button: Hide the panel and save visibility state.
-    safeQuery('.pfp-close', panelElement)?.addEventListener('click', () => { // safeQuery depends on dom-helpers.js
-        panelElement.classList.add('hidden');
-        config.panelVisible = false; // Update global config
-        saveConfig(); // Save config (depends on config.js)
-        console.log('Pack Filler Pro: Panel hidden, visibility saved.');
-    });
-
-    // Event Listeners for configuration input changes (mode, count, qty, range, checkboxes):
-    // Iterate over all input, select, and checkbox elements within the config section.
-    panelElement.querySelectorAll('.pfp-config-section input, .pfp-config-section select').forEach(input => {
-        input.addEventListener('change', (e) => {
-            const target = e.target; // The input/select element that changed
-            const id = target.id; // Get the element's ID (e.g., 'pfp-mode', 'pfp-count')
-            let value;
-
-            // Determine the value based on the input type.
-             if (target.type === 'checkbox') {
-                 value = target.checked; // Checkbox value is boolean
-             } else if (target.type === 'number') {
-                  // For number inputs, parse as float initially. Keep original value if parsing fails (user typed non-number).
-                  // Validation/clamping happens in core logic functions (chooseQuantity, calculateFillCount).
-                  value = parseFloat(target.value);
-                  if (isNaN(value)) value = target.value; // Keep original string if NaN
-             }
-             else {
-                 value = target.value; // Value for select or text inputs
-             }
-
-            // Map the element ID to the corresponding property name in the config object.
-            // Assumes IDs are 'pfp-propName' and config properties are 'lastPropName'.
-            const prop = id.replace('pfp-', 'last'); // e.g., 'pfp-mode' becomes 'lastMode'
-
-            // Check if the property exists in the config object before updating.
-            if (config.hasOwnProperty(prop)) {
-                config[prop] = value; // Update the global config variable
-                saveConfig(); // Save the updated config (depends on config.js)
-                updatePanelUI(); // Update the panel UI (e.g., show/hide mode-specific inputs)
-                // console.log(`Pack Filler Pro: Config updated: ${prop} = ${value}`); // Can be noisy
-            } else {
-                console.warn(`Pack Filler Pro: Attempted to set unknown config property: ${prop} from element #${id}`);
-            }
+    const closeButton = panelElement.querySelector('.pfp-close');
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            setPanelVisibility(false); // Hide the panel (setPanelVisibility defined below)
         });
-    });
+         console.log('Pack Filler Pro (Simplified): Close button listener added.');
+    } else {
+         console.warn('Pack Filler Pro (Simplified): Close button element not found.');
+    }
 
-    // Event Listener for the "Fill Packs" button: Trigger the main fill logic.
-    safeQuery('#pfp-run', panelElement)?.addEventListener('click', fillPacks); // fillPacks depends on fill-logic.js
 
-    // Event Listener for the "Clear All Visible" button: Trigger the clear all inputs utility.
-    // Pass true to record the state before clearing for undo functionality.
-    safeQuery('#pfp-clear-btn', panelElement)?.addEventListener('click', () => clearAllInputs(true)); // clearAllInputs depends on dom-helpers.js
+    // Event Listeners for configuration input changes (mode, count, qty, range, checkboxes)
+    // are commented out in this simplified version.
+    // panelElement.querySelectorAll('.pfp-config-section input, .pfp-config-section select').forEach(input => { /* ... */ });
 
-    // Event Listener for the "Undo" button: Trigger the undo state management function.
-    safeQuery('#pfp-undo-btn', panelElement)?.addEventListener('click', applyUndo); // applyUndo depends on state-management.js
+    // Event Listener for the "Fill Packs" button is commented out.
+    // const runButton = panelElement.querySelector('#pfp-run');
+    // if (runButton) runButton.addEventListener('click', fillPacks);
 
-    // Event Listener for the "Redo" button: Trigger the redo state management function.
-    safeQuery('#pfp-redo-btn', panelElement)?.addEventListener('click', applyRedo); // applyRedo depends on state-management.js
+    // Event Listener for the "Clear All Visible" button is commented out.
+    // const clearButton = panelElement.querySelector('#pfp-clear-btn');
+    // if (clearButton) clearButton.addEventListener('click', () => clearAllInputs(true));
 
-    // Add event listeners to the preset buttons.
-    // This is handled by the createPresetButtons function itself, which adds listeners
-    // when the buttons are created. We just need to ensure createPresetButtons is called
-    // after the panel is added to the DOM and listeners are attached.
-    // createPresetButtons depends on presets.js and addTooltips (tooltips.js).
+    // Event Listeners for Undo/Redo buttons are commented out.
+    // const undoBtn = panelElement.querySelector('#pfp-undo-btn');
+    // if (undoBtn) undoBtn.addEventListener('click', applyUndo);
+    // const redoBtn = panelElement.querySelector('#pfp-redo-btn');
+    // if (redoBtn) redoBtn.addEventListener('click', applyRedo);
 
-    console.log('Pack Filler Pro: Panel event listeners added.');
+    // Preset button listeners are handled by createPresetButtons, which is commented out.
+
+    console.log('Pack Filler Pro (Simplified): Basic panel event listeners added.');
 }
 
 /**
- * Updates the state of UI elements in the panel to match the current configuration and script state.
- * This includes setting input/checkbox values, showing/hiding mode-specific inputs,
- * and enabling/disabling buttons (Undo/Redo/Fill) based on state (undoStack, redoStack, isFilling).
- * Depends on: Global State (config, undoStack, redoStack, isFilling),
- * DOM Helpers (safeQuery), Constants (MAX_QTY)
+ * Sets the panel's visibility (shows or hides it) and saves the state to storage.
+ * This is a simplified version only dealing with the 'hidden' class and config saving.
+ * @param {boolean} isVisible - True to show the panel, false to hide it.
+ * Depends on: Global State (panelElement, config), saveConfig (from config.js), showToast (from feedback.js)
  */
-function updatePanelUI() {
-    // Ensure the panel element exists before trying to update its UI.
+function setPanelVisibility(isVisible) {
     if (!panelElement) {
-        console.error('Pack Filler Pro: Cannot update UI, panel element not found.');
+        console.error('Pack Filler Pro (Simplified): Panel element not found to set visibility.');
         return;
     }
 
-    // console.log('Pack Filler Pro: Updating panel UI...'); // Can be noisy
-
-    // --- Update Input/Select/Checkbox Values from Config ---
-
-    // Update mode select element's value.
-    const modeSelect = safeQuery('#pfp-mode', panelElement);
-    if (modeSelect) modeSelect.value = config.lastMode;
-
-    // Update number input values.
-    const countInput = safeQuery('#pfp-count', panelElement);
-    if (countInput) countInput.value = config.lastCount; // Value is stored as is, validation/clamping on use
-
-    const fixedQtyInput = safeQuery('#pfp-fixed', panelElement);
-    if (fixedQtyInput) fixedQtyInput.value = config.lastFixedQty; // Value is stored as is
-
-    const minQtyInput = safeQuery('#pfp-min', panelElement);
-    if (minQtyInput) minQtyInput.value = config.lastMinQty; // Value is stored as is
-
-    const maxQtyInput = safeQuery('#pfp-max', panelElement);
-    if (maxQtyInput) maxQtyInput.value = config.lastMaxQty; // Value is stored as is
-
-    // Update checkbox states.
-    const clearCheckbox = safeQuery('#pfp-clear', panelElement);
-    if (clearCheckbox) clearCheckbox.checked = config.lastClear;
-
-    const loadFullPageCheckbox = safeQuery('#pfp-load-full-page', panelElement);
-    if (loadFullPageCheckbox) loadFullPageCheckbox.checked = config.loadFullPage;
-
-
-    // --- Update Input/Group Visibility Based on Mode ---
-
-    const mode = config.lastMode;
-    // Get all elements/groups that are mode-specific.
-    panelElement.querySelectorAll('.pfp-mode-specific').forEach(el => {
-        el.style.display = 'none'; // Hide all mode-specific groups initially
-    });
-
-    // Show the relevant groups based on the currently selected mode.
-    if (mode === 'fixed') {
-        // Show count and fixed quantity inputs for 'fixed' mode.
-        const countGroup = safeQuery('#pfp-count-group', panelElement);
-        if (countGroup) countGroup.style.display = 'flex'; // Use flex as per CSS layout
-        const fixedGroup = safeQuery('#pfp-fixed-group', panelElement);
-        if (fixedGroup) fixedGroup.style.display = 'flex';
-    } else if (mode === 'max') { // 'max' mode corresponds to the Random Range UI.
-        // Show count and min/max range inputs for 'max' mode.
-        const countGroup = safeQuery('#pfp-count-group', panelElement);
-        if (countGroup) countGroup.style.display = 'flex';
-        const rangeInputs = safeQuery('#pfp-range-inputs', panelElement);
-        if (rangeInputs) rangeInputs.style.display = 'flex'; // Container for min/max inputs
-    } else if (mode === 'unlimited') {
-         // Show only the fixed quantity input for 'unlimited' mode (it uses fixedQty).
-         const fixedGroup = safeQuery('#pfp-fixed-group', panelElement);
-         if (fixedGroup) fixedGroup.style.display = 'flex';
-    }
-     // 'clear' mode doesn't need any specific inputs shown (other than the clear checkbox itself).
-
-
-    // --- Update Button States (Enabled/Disabled, Text) ---
-
-    // Update the state of the Undo button.
-    const undoBtn = safeQuery('#pfp-undo-btn', panelElement);
-    if (undoBtn) {
-         // Disable if the undo stack is empty or if an update is in progress.
-         undoBtn.disabled = undoStack.length === 0 || isFilling;
-         // Update the button text to show the number of available undo states.
-         undoBtn.querySelector('.button-text').textContent = `Undo (${undoStack.length})`;
+    if (isVisible) {
+        panelElement.classList.remove('hidden');
+        console.log('Pack Filler Pro (Simplified): Panel shown.');
+        // Ensure showToast is available from feedback.js
+        if (typeof showToast === 'function') showToast('Pack Filler Pro Panel Shown', 'info', 1500);
+    } else {
+        panelElement.classList.add('hidden');
+        console.log('Pack Filler Pro (Simplified): Panel hidden.');
+         // Ensure showToast is available from feedback.js
+        if (typeof showToast === 'function') showToast('Pack Filler Pro Panel Hidden', 'info', 1500);
     }
 
-     // Update the state of the Redo button.
-     const redoBtn = safeQuery('#pfp-redo-btn', panelElement);
-     if (redoBtn) {
-          // Disable if the redo stack is empty or if an update is in progress.
-          redoBtn.disabled = redoStack.length === 0 || isFilling;
-          // Update the button text to show the number of available redo states.
-          redoBtn.querySelector('.button-text').textContent = `Redo (${redoStack.length})`;
-     }
-
-    // Update the state of the main "Fill Packs" button.
-    const fillBtn = safeQuery('#pfp-run', panelElement);
-     if (fillBtn) {
-          // Disable the button if an update is already in progress.
-          fillBtn.disabled = isFilling;
-          // Change the button text while an update is running.
-          fillBtn.querySelector('.button-text').textContent = isFilling ? 'Filling...' : 'Fill Packs';
-     }
-
-    // Update the state of the "Clear All Visible" button.
-    const clearBtn = safeQuery('#pfp-clear-btn', panelElement);
-     if (clearBtn) {
-         // Disable the button if an update is already in progress.
-         clearBtn.disabled = isFilling;
-         // The text doesn't change, but could if needed.
-     }
-
-    // Console log for debugging/tracking UI updates.
-    // console.log('Pack Filler Pro: Panel UI updated.');
+    // Update config state and save.
+    // Ensure config and saveConfig are available
+    if (config && typeof saveConfig === 'function') {
+         config.panelVisible = isVisible; // Update global config variable
+         saveConfig(); // Save the updated visibility state
+         console.log('Pack Filler Pro (Simplified): Panel visibility state saved:', isVisible);
+    } else {
+         console.error('Pack Filler Pro (Simplified): Cannot save panel visibility state, config or saveConfig missing.');
+    }
 }
 
+
 /**
- * Initializes the control panel lifecycle.
- * Creates the panel element, adds event listeners to its controls,
- * updates the UI to reflect current config/state, creates preset buttons,
- * and adds tooltips to panel elements.
- * Also registers a Tampermonkey menu command to toggle panel visibility.
- * Depends on: createPanel, addPanelEventListeners, updatePanelUI, createPresetButtons,
- * addTooltips, safeQuery, Global State (config, panelElement), saveConfig, showToast,
- * GM_registerMenuCommand (granted in main script)
+ * Initializes the control panel lifecycle in this simplified version.
+ * Creates the panel element, adds basic event listeners, sets initial visibility,
+ * and registers the Tampermonkey menu command.
+ * (Other initialization steps are commented out).
+ * Depends on: createPanel, addPanelEventListeners, setPanelVisibility,
+ * GM_registerMenuCommand (granted in main script), Global State (config, panelElement),
+ * showToast (from feedback.js), saveConfig (from config.js)
  */
 function initPanel() {
-    console.log('Pack Filler Pro: Starting initPanel()...');
+    console.log('Pack Filler Pro (Simplified): Starting initPanel()...');
+
     // Attempt to create the panel element. Abort initialization if creation fails.
-    const panel = createPanel(); // Depends on createPanel (defined above)
+    // Ensure createPanel is available (defined above)
+    if (typeof createPanel !== 'function') {
+         console.error("Pack Filler Pro (Simplified): createPanel function not available!");
+         showToast("Error initializing panel: createPanel missing.", 'error');
+         return;
+    }
+    const panel = createPanel(); // createPanel defined above
     if (!panel) {
-        console.error("Pack Filler Pro: Panel initialization failed because panel element could not be created.");
+        console.error("Pack Filler Pro (Simplified): Panel initialization failed because panel element could not be created.");
+        // showToast is called inside createPanel if it fails
         return; // Stop initialization
     }
 
-    // Add event listeners to the panel's interactive elements.
-    addPanelEventListeners(); // Depends on addPanelEventListeners (defined above)
-
-    // Update the UI elements (input values, checkbox states, visibility, button states)
-    // to match the currently loaded configuration and script state.
-    updatePanelUI(); // Depends on updatePanelUI (defined above)
-
-    // Create and add the preset buttons to their container within the panel.
-    const presetContainer = safeQuery('.pfp-preset-container', panelElement); // safeQuery depends on dom-helpers.js
-    if(presetContainer) {
-         createPresetButtons(presetContainer); // createPresetButtons depends on presets.js
+    // Add basic event listeners to the panel's interactive elements.
+    // Ensure addPanelEventListeners is available (defined above)
+    if (typeof addPanelEventListeners === 'function') {
+         addPanelEventListeners(); // addPanelEventListeners defined above
     } else {
-         console.error('Pack Filler Pro: Preset container element not found in panel after creation.');
+         console.error("Pack Filler Pro (Simplified): addPanelEventListeners function not available!");
     }
 
-    // Add tooltips to all elements within the panel that have the data-pfp-help attribute.
-    addTooltips(panel); // addTooltips depends on tooltips.js
+
+    // Set the initial visibility of the panel based on the saved state.
+    // This is handled inside createPanel now based on the loaded config.
+    // We just need to ensure the config was loaded before calling createPanel.
+
+    // Presets creation, tooltips beyond basic CSS, and draggable are commented out.
+    // const presetContainer = panelElement.querySelector('.pfp-preset-container');
+    // if(presetContainer && typeof createPresetButtons === 'function') {
+    //      createPresetButtons(presetContainer);
+    // } else if (!presetContainer) {
+    //      console.warn('Pack Filler Pro (Simplified): Preset container element not found in panel.');
+    // } else {
+    //      console.warn('Pack Filler Pro (Simplified): createPresetButtons function not available.');
+    // }
+    // if (typeof addTooltips === 'function') addTooltips(panel);
+
 
      // Register a Tampermonkey menu command to easily toggle the panel's visibility.
-     console.log('Pack Filler Pro: Checking for GM_registerMenuCommand...');
+     console.log('Pack Filler Pro (Simplified): Checking for GM_registerMenuCommand...');
      if (typeof GM_registerMenuCommand !== 'undefined') {
-          console.log('Pack Filler Pro: GM_registerMenuCommand available, registering menu command...');
+          console.log('Pack Filler Pro (Simplified): GM_registerMenuCommand available, registering menu command...');
          GM_registerMenuCommand("🎴 Toggle Pack Filler Pro Panel", () => {
-              console.log('Pack Filler Pro: Menu command triggered. panelElement:', panelElement);
-              // Check if the panel element exists and toggle its 'hidden' class.
+              console.log('Pack Filler Pro (Simplified): Menu command triggered.');
+              // Check if the global panelElement variable is set.
               if (panelElement) {
                    const isHidden = panelElement.classList.contains('hidden');
-                   if (isHidden) {
-                        panelElement.classList.remove('hidden'); // Show the panel
-                        config.panelVisible = true; // Update config state
-                        showToast('Pack Filler Pro Panel Shown', 'info', 1500); // Depends on showToast
+                   // Ensure setPanelVisibility is available (defined above)
+                   if (typeof setPanelVisibility === 'function') {
+                        setPanelVisibility(!isHidden); // Toggle visibility
                    } else {
-                        panelElement.classList.add('hidden'); // Hide the panel
-                        config.panelVisible = false; // Update config state
-                        showToast('Pack Filler Pro Panel Hidden', 'info', 1500); // Depends on showToast
+                        console.error("Pack Filler Pro (Simplified): setPanelVisibility function not available!");
                    }
-                   saveConfig(); // Save the updated visibility state (depends on config.js)
               } else {
-                   // If the panel element is null, try initializing it again in case something went wrong earlier.
-                   console.warn('Pack Filler Pro: Panel element null in menu command, attempting re-initialization...');
-                   showToast('Attempting to initialize panel...', 'info', 1500); // Depends on showToast
-                   initPanel(); // Recursive call - BE CAREFUL with recursion, but here it's guarded by panelElement check
+                   // If the panel element is null, try creating and initializing it again.
+                   console.warn('Pack Filler Pro (Simplified): Panel element null in menu command, attempting re-initialization...');
+                   // Ensure showToast is available
+                   if (typeof showToast === 'function') showToast('Attempting to initialize panel...', 'info', 1500);
+                   initPanel(); // Recursive call - guarded by panelElement check and function availability checks
                    // If initialization was successful this time, show the panel and save state.
-                   if(panelElement && !config.panelVisible) { // Check config.panelVisible in case it was already true
-                        panelElement.classList.remove('hidden');
-                        config.panelVisible = true;
-                        saveConfig();
+                   // Check panelElement again after initPanel call
+                   if(panelElement && typeof setPanelVisibility === 'function' && !config.panelVisible) {
+                        setPanelVisibility(true); // Show the panel if init was successful and it wasn't already visible
+                   } else if (!panelElement && typeof showToast === 'function') {
+                        showToast('Panel initialization failed again.', 'error', 2000);
                    }
               }
          });
      } else {
-          console.warn("Pack Filler Pro: GM_registerMenuCommand not available. Panel toggle via menu disabled.");
-          // A fallback method for toggling could be added here (e.g., double-click body),
-          // but it's generally less reliable and can interfere with website functionality.
+          console.warn("Pack Filler Pro (Simplified): GM_registerMenuCommand not available. Panel toggle via menu disabled.");
      }
 
-    console.log('Pack Filler Pro: Panel initialization complete.');
+    console.log('Pack Filler Pro (Simplified): Panel initialization complete.');
 }
 
 
-// Note: This file defines the main JavaScript logic for the UI panel.
-// It depends heavily on global state variables and functions from many other modules.
-// Ensure all dependencies are required before ui-panel.js in the main script.
+// Note: This file defines the core panel logic functions and the main initialization function.
+// It depends on global state variables (declared with var in main script) and functions/constants from other modules.
+// Ensure dependencies (constants.js, config.js, feedback.js, ui-panel-html.js) are required before ui-panel.js.
