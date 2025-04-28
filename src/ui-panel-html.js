@@ -1,6 +1,9 @@
+console.log('Pack Filler Pro: src/ui-panel-html.js started execution.'); // Log to confirm file loading
+
 // This file contains the HTML structure for the Pack Filler Pro control panel as a string.
-// It includes basic elements for configuration inputs, buttons, and now a status message area.
+// It includes basic elements for configuration inputs, buttons, and a status message area.
 // Depends on: Constants (PANEL_ID - defined in constants.js)
+// Note: GM_info.script.version is a global variable provided by Tampermonkey.
 
 // The HTML structure for the panel.
 // Note: The ID is applied to the outer div when the element is created in ui-panel.js.
