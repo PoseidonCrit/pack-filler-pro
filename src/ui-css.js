@@ -1,6 +1,18 @@
+console.log('Pack Filler Pro: src/ui-css.js started execution.'); // Log to confirm file loading
+
 // This file contains the CSS styles for the Pack Filler Pro control panel and related elements.
 // It uses GM_addStyle to inject the CSS into the page.
 // Depends on: GM_addStyle (granted in main script), Constants (PANEL_ID, TOOLTIP_THEME - defined in constants.js)
+
+// Ensure PANEL_ID and TOOLTIP_THEME are available from constants.js
+if (typeof PANEL_ID === 'undefined') {
+    console.error("Pack Filler Pro: PANEL_ID constant not available from constants.js!");
+    var PANEL_ID = 'pack-filler-pro-panel'; // Fallback default
+}
+if (typeof TOOLTIP_THEME === 'undefined') {
+     console.error("Pack Filler Pro: TOOLTIP_THEME constant not available from constants.js! Using default 'light'.");
+     var TOOLTIP_THEME = 'light'; // Fallback default
+}
 
 /**
  * Injects the CSS styles for the Pack Filler Pro UI into the document head.
@@ -21,469 +33,318 @@ function addPanelCSS() {
         --pfp-secondary-color: #e0e0e0;
         --pfp-secondary-hover: #cccccc;
         --pfp-secondary-text: #555;
-        --pfp-panel-width: 300px; /* Slightly narrower */
-        --pfp-border-radius: 10px; /* Slightly less rounded */
-        --pfp-focus-color: var(--pfp-primary-color);
-        --pfp-focus-shadow: rgba(78, 102, 255, 0.2);
-        --pfp-toast-info: #17a2b8;
-        --pfp-toast-success: #28a745;
-        --pfp-toast-warning: #ffc107;
-        --pfp-toast-error: #dc3545;
+        --pfp-panel-width: 280px; /* Increased width slightly */
+        --pfp-panel-padding: 15px;
+        --pfp-border-radius: 8px;
+        --pfp-header-bg: rgba(240, 240, 240, 0.9); /* Subtle header background */
+        --pfp-header-border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        --pfp-input-border: #ccc;
+        --pfp-input-focus-border: #5e5cff;
+        --pfp-button-padding: 10px 15px;
+        --pfp-button-border-radius: 4px;
+        --pfp-button-font-size: 14px;
+        --pfp-button-transition: background-color 0.2s ease, opacity 0.2s ease;
+        --pfp-disabled-opacity: 0.6;
+        --pfp-status-color: #555;
+        --pfp-status-font-size: 12px;
+        --pfp-status-border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+        --pfp-status-padding-bottom: 8px;
+        --pfp-section-margin-bottom: 15px;
+        --pfp-section-border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        --pfp-section-padding-bottom: 10px;
     }
 
     /* --- Panel Styles --- */
     #${PANEL_ID} {
         position: fixed;
+        /* Default position, can be overridden by saved config */
+        top: 120px;
+        right: 30px;
+        left: auto;
+        bottom: auto;
+
         width: var(--pfp-panel-width);
-        background: var(--pfp-bg-color);
+        background-color: var(--pfp-bg-color);
+        border: 1px solid var(--pfp-border-color);
         border-radius: var(--pfp-border-radius);
-        box-shadow: 0 10px 30px var(--pfp-shadow-color), 0 0 0 1px var(--pfp-border-color);
-        font-family: 'Roboto', 'Segoe UI', Tahoma, sans-serif;
+        box-shadow: 0 4px 12px var(--pfp-shadow-color);
+        z-index: 99999; /* High z-index to be on top */
+        font-family: sans-serif;
         color: var(--pfp-text-color);
-        z-index: 1000001; /* Ensure it's above most site elements */
-        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
-        backdrop-filter: blur(8px); /* Slightly less blur */
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.3); /* Slightly stronger white border */
-        overflow: hidden;
-        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Contains border-radius */
+        resize: both; /* Allow resizing */
+        min-width: 200px;
+        min-height: 150px;
+        max-width: 95vw; /* Prevent panel from exceeding viewport width */
+        max-height: 95vh; /* Prevent panel from exceeding viewport height */
     }
 
     #${PANEL_ID}.hidden {
-        transform: translateX(110%) scale(0.95);
         opacity: 0;
-        pointer-events: none;
+        pointer-events: none; /* Prevent interaction when hidden */
     }
 
     #${PANEL_ID}.is-dragging {
-        /* Optional styles when dragging, e.g., different cursor or visual cue */
-        /* cursor: grabbing !important; */ /* May not work due to 'move' on header */
-        user-select: none; /* Prevent selecting text while dragging */
+         cursor: grabbing !important; /* Indicate dragging */
+         user-select: none; /* Prevent text selection while dragging */
     }
 
 
-    .pfp-header {
-        background: linear-gradient(135deg, var(--pfp-primary-color), var(--pfp-primary-hover));
-        color: #fff;
-        padding: 12px 18px; /* Adjusted padding */
-        cursor: move;
+    /* --- Header Styles --- */
+    #${PANEL_ID} .pfp-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        border-top-left-radius: var(--pfp-border-radius); /* Match panel radius */
-        border-top-right-radius: var(--pfp-border-radius);
+        padding: 8px var(--pfp-panel-padding);
+        background-color: var(--pfp-header-bg);
+        border-bottom: var(--pfp-header-border-bottom);
+        cursor: grab; /* Indicate draggable handle */
+        user-select: none; /* Prevent text selection */
     }
 
-    .pfp-title {
-        margin: 0;
-        font-size: 16px; /* Slightly smaller title */
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
-
-    .pfp-close {
-        cursor: pointer;
-        color: #fff;
-        font-size: 22px; /* Slightly smaller */
+    #${PANEL_ID} .pfp-title {
         font-weight: bold;
-        line-height: 1;
-        transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease;
-        opacity: 0.9;
-        padding: 0 4px; /* Easier to click */
-        border-radius: 50%;
-        margin-left: 8px; /* Space from title */
-    }
-    .pfp-close:hover {
-        transform: scale(1.1) rotate(90deg);
-        opacity: 1;
-        background-color: rgba(255, 255, 255, 0.15);
+        font-size: 16px;
+        color: var(--pfp-label-color);
     }
 
-    .pfp-body {
-        padding: 16px 18px; /* Adjusted padding */
+     #${PANEL_ID} .pfp-version {
+          font-size: 10px;
+          color: #777;
+          margin-left: 5px;
+     }
+
+    #${PANEL_ID} .pfp-close {
+        font-size: 20px;
+        cursor: pointer;
+        color: #aaa;
+        transition: color 0.2s ease;
+        line-height: 1; /* Prevent extra space below the 'x' */
+    }
+    #${PANEL_ID} .pfp-close:hover {
+        color: #777;
+    }
+
+    /* --- Body Styles --- */
+    #${PANEL_ID} .pfp-body {
+        padding: var(--pfp-panel-padding);
         display: flex;
         flex-direction: column;
-        gap: 14px; /* Space between sections */
-        max-height: calc(95vh - 100px); /* Prevent excessive height, adjust as needed */
-        overflow-y: auto; /* Allow scrolling if content exceeds height */
-        box-sizing: border-box;
+        gap: 15px; /* Space between sections */
+        overflow-y: auto; /* Add scroll if content overflows vertically */
     }
-    /* Custom scrollbar styling (optional) */
-    .pfp-body::-webkit-scrollbar { width: 6px; }
-    .pfp-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px;}
-    .pfp-body::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 3px; }
-    .pfp-body::-webkit-scrollbar-thumb:hover { background-color: rgba(0,0,0,0.3); }
 
-
-     .pfp-config-section,
-     .pfp-actions-section,
-     .pfp-presets-section {
-         display: flex; /* Use flex for consistent gap */
-         flex-direction: column;
-         gap: 10px; /* Space between elements within a section */
-         padding-bottom: 10px; /* Add bottom padding */
-         border-bottom: 1px solid var(--pfp-border-color);
-     }
-     .pfp-presets-section {
-         border-bottom: none; /* Last section */
-         padding-bottom: 0;
+    /* --- Status Area Styles --- */
+     #${PANEL_ID} .pfp-status-area {
+         font-size: var(--pfp-status-font-size);
+         color: var(--pfp-status-color);
+         padding-bottom: var(--pfp-status-padding-bottom);
+         border-bottom: var(--pfp-status-border-bottom);
+         white-space: pre-wrap; /* Allow line breaks from <br> */
      }
 
 
-    .pfp-config-section h4,
-    .pfp-actions-section h4,
-    .pfp-presets-section h4 {
-        margin: 0; /* Use gap for spacing */
-        font-size: 13px; /* Smaller header */
-        font-weight: 600;
-        color: var(--pfp-label-color);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding-bottom: 6px; /* Space below header */
-        border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
-    }
-
-    .pfp-form-group { margin-bottom: 0; display: flex; flex-direction: column; } /* Use gap */
-
-    .pfp-label {
-        display: block;
-        margin-bottom: 5px; /* Adjusted margin */
-        font-size: 13px; /* Adjusted font size */
-        font-weight: 500;
-        color: var(--pfp-label-color);
-    }
-
-    .pfp-input,
-    .pfp-select {
-        width: 100%;
-        padding: 8px 10px; /* Adjusted padding */
-        border: 1px solid var(--pfp-border-color);
-        border-radius: 5px; /* Adjusted radius */
-        box-sizing: border-box;
-        font-size: 13px; /* Adjusted font size */
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        background-color: rgba(255, 255, 255, 0.95); /* Slightly more opaque */
-        color: var(--pfp-text-color);
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-    .pfp-input::placeholder { color: #aab; }
-    .pfp-input:hover, .pfp-select:hover { border-color: rgba(0, 0, 0, 0.2); }
-
-    .pfp-input:focus,
-    .pfp-select:focus {
-        outline: none;
-        border-color: var(--pfp-focus-color);
-        box-shadow: 0 0 0 3px var(--pfp-focus-shadow);
-        background-color: #fff;
-    }
-
-     .pfp-select {
-         appearance: none; /* Remove default dropdown arrow */
-         /* Using data URI for SVG arrow. Fill color is hardcoded to a dark grey. */
-         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23333'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E");
-         background-repeat: no-repeat;
-         background-position: right 8px center; /* Adjusted position */
-         background-size: 14px 14px; /* Adjusted size */
-         padding-right: 30px; /* Make space for the custom arrow */
-         cursor: pointer;
-     }
-     /* Note: Updating SVG fill on focus via pure CSS is not possible with data URI. */
-
-
-    /* Style containers for mode-specific inputs */
-    .pfp-mode-specific { display: none; } /* Controlled by JS */
-    #pfp-range-inputs {
-        padding: 10px; /* Adjusted padding */
-        border: 1px dashed rgba(0, 0, 0, 0.1); /* Adjusted border */
-        border-radius: 6px;
-        margin-top: 5px;
-        background-color: rgba(0, 0, 0, 0.02);
-        display: flex; /* Use flex for gap */
-        flex-direction: column;
-        gap: 8px; /* Adjusted space */
-    }
-     .pfp-range-group { margin-bottom: 0 !important; } /* Use gap */
-
-
-    .pfp-options-divider { /* Simple divider */
-        border-top: 1px solid var(--pfp-border-color);
-        margin-top: 5px;
-        padding-top: 14px; /* Adjusted padding */
-        font-size: 11px; /* Smaller text */
-        font-weight: 600;
-        color: var(--pfp-label-color);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .pfp-form-check {
+    /* --- Config Section Styles --- */
+    #${PANEL_ID} .pfp-config-section {
         display: flex;
-        align-items: center;
-        cursor: pointer;
-        padding: 3px 0; /* Adjusted padding */
+        flex-direction: column;
+        gap: 10px; /* Space between input groups */
+        margin-bottom: var(--pfp-section-margin-bottom);
+        padding-bottom: var(--pfp-section-padding-bottom);
+        border-bottom: var(--pfp-section-border-bottom);
     }
 
-    .pfp-checkbox {
-        margin-right: 8px; /* Adjusted margin */
-        cursor: pointer;
-        height: 16px; /* Slightly smaller */
-        width: 16px;
-        appearance: none;
-        background-color: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(0, 0, 0, 0.25);
+    #${PANEL_ID} .pfp-config-section h5 {
+        margin: 0 0 5px 0;
+        font-size: 14px;
+        color: var(--pfp-label-color);
+        border-bottom: 1px solid rgba(0,0,0,0.03); /* Subtle separator */
+        padding-bottom: 5px;
+    }
+
+    #${PANEL_ID} .pfp-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px; /* Space between label and input */
+    }
+
+    #${PANEL_ID} label {
+        font-size: 13px;
+        color: var(--pfp-label-color);
+        font-weight: bold;
+    }
+
+    #${PANEL_ID} input[type="number"],
+    #${PANEL_ID} select {
+        padding: 8px;
+        border: 1px solid var(--pfp-input-border);
         border-radius: 4px;
-        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-        position: relative;
-        display: inline-block;
-        vertical-align: middle; /* Align with label text */
-        flex-shrink: 0; /* Prevent shrinking */
-    }
-
-    .pfp-checkbox:checked {
-        background-color: var(--pfp-primary-color);
-        border-color: var(--pfp-primary-color);
-    }
-
-    .pfp-checkbox:checked::after {
-        content: '';
-        position: absolute;
-        left: 4px; /* Adjusted position */
-        top: 1px; /* Adjusted position */
-        width: 4px;
-        height: 8px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-    }
-
-    .pfp-checkbox:focus {
-         outline: none;
-         box-shadow: 0 0 0 3px var(--pfp-focus-shadow);
-    }
-
-
-    .pfp-label-inline {
-        display: inline-block;
-        margin-bottom: 0;
-        vertical-align: middle;
-        font-size: 13px; /* Adjusted font size */
+        font-size: 14px;
+        width: 100%; /* Make input/select fill container */
+        box-sizing: border-box; /* Include padding and border in element's total width */
         color: var(--pfp-text-color);
-        user-select: none; /* Prevent text selection on click */
-        line-height: 1.4;
-    }
-    .pfp-form-check:hover .pfp-checkbox {
-        border-color: var(--pfp-primary-color);
-    }
-    .pfp-form-check:hover .pfp-label-inline {
-        color: var(--pfp-primary-color);
+        background-color: #fff;
+        transition: border-color 0.2s ease;
     }
 
-    .pfp-actions-section {
-        display: flex;
-        flex-direction: column;
-        gap: 10px; /* Space between fill/clear and history */
-    }
-
-    .pfp-form-actions { /* Container for Fill and Clear buttons */
-        display: flex;
-        gap: 8px; /* Space between buttons */
-        justify-content: space-between;
-    }
-
-     .pfp-history-buttons { /* Container for Undo and Redo buttons */
-         display: flex;
-         gap: 8px; /* Space between buttons */
-         justify-content: space-between;
+     #${PANEL_ID} input[type="number"]:focus,
+     #${PANEL_ID} select:focus {
+          outline: none;
+          border-color: var(--pfp-input-focus-border);
+          box-shadow: 0 0 0 2px rgba(94, 92, 255, 0.2); /* Focus ring */
      }
 
-    .pfp-button {
-        padding: 9px 14px; /* Adjusted padding */
+
+    /* Style for the Random Range inputs */
+    #${PANEL_ID} .pfp-range-group-inputs {
+         display: flex;
+         align-items: center;
+         gap: 5px;
+    }
+
+     #${PANEL_ID} .pfp-range-group-inputs input[type="number"] {
+          flex-grow: 1; /* Allow inputs to take available space */
+          width: auto; /* Override 100% width */
+     }
+
+     #${PANEL_ID} .pfp-range-group-inputs span {
+          font-size: 14px;
+          color: var(--pfp-text-color);
+     }
+
+
+    /* Style for Checkbox groups */
+    #${PANEL_ID} .pfp-checkbox-group {
+        flex-direction: row; /* Align checkbox and label horizontally */
+        align-items: center;
+        gap: 8px;
+    }
+
+     #${PANEL_ID} .pfp-checkbox-group input[type="checkbox"] {
+          width: auto; /* Reset width */
+          margin: 0; /* Reset margin */
+     }
+
+     #${PANEL_ID} .pfp-checkbox-group label {
+          margin: 0; /* Reset margin */
+          font-weight: normal; /* Less bold for checkbox labels */
+     }
+
+
+    /* --- Button Group Styles --- */
+    #${PANEL_ID} .pfp-button-group {
+        display: flex;
+        gap: 10px; /* Space between buttons */
+        margin-bottom: var(--pfp-section-margin-bottom);
+        padding-bottom: var(--pfp-section-padding-bottom);
+        border-bottom: var(--pfp-section-border-bottom);
+        flex-wrap: wrap; /* Allow buttons to wrap on smaller panel sizes */
+    }
+
+     #${PANEL_ID} .pfp-button-group:last-child {
+          margin-bottom: 0;
+          padding-bottom: 0;
+          border-bottom: none; /* No border on the last group */
+     }
+
+    #${PANEL_ID} .pfp-button {
+        padding: var(--pfp-button-padding);
         border: none;
-        border-radius: 5px; /* Adjusted radius */
+        border-radius: var(--pfp-button-border-radius);
         cursor: pointer;
-        font-size: 13px; /* Adjusted font size */
-        font-weight: 500;
-        transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-        flex-grow: 1;
-        text-align: center;
-        text-decoration: none; /* For potential links styled as buttons */
-        display: inline-flex; /* Align text/icon */
+        font-size: var(--pfp-button-font-size);
+        transition: var(--pfp-button-transition);
+        display: flex; /* Align text and icon if present */
         align-items: center;
         justify-content: center;
-         min-width: 0; /* Allow shrinking in flex container */
+        gap: 5px; /* Space between text and icon */
+        flex-grow: 1; /* Allow buttons to grow to fill space */
     }
-     .pfp-button .button-text {
-         white-space: nowrap; /* Prevent text wrap in buttons */
-         overflow: hidden;
-         text-overflow: ellipsis;
-     }
 
-     .pfp-button:active { transform: scale(0.98); }
-     .pfp-button:focus { outline: none; box-shadow: 0 0 0 3px var(--pfp-focus-shadow); }
-
-
-    .pfp-button-primary {
+    #${PANEL_ID} .pfp-button-primary {
         background-color: var(--pfp-primary-color);
         color: white;
-        box-shadow: 0 3px 8px rgba(78, 102, 255, 0.2);
     }
-    .pfp-button-primary:hover:not(:disabled) {
+    #${PANEL_ID} .pfp-button-primary:hover:not(:disabled) {
         background-color: var(--pfp-primary-hover);
-        box-shadow: 0 5px 12px rgba(78, 102, 255, 0.3);
     }
 
-    .pfp-button-secondary {
+    #${PANEL_ID} .pfp-button-secondary {
         background-color: var(--pfp-secondary-color);
         color: var(--pfp-secondary-text);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    .pfp-button-secondary:hover:not(:disabled) {
+    #${PANEL_ID} .pfp-button-secondary:hover:not(:disabled) {
         background-color: var(--pfp-secondary-hover);
-        color: #444;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
     }
 
-     .pfp-button-history {
-         background-color: #6c757d; /* Grey */
-         color: white;
-         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-     }
-     .pfp-button-history:hover:not(:disabled) {
-         background-color: #5a6268; /* Darker grey */
-         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-     }
-
-
-    button:disabled {
-        background-color: #cccccc !important; /* Light grey, override hover */
-        color: #999999 !important; /* Dark grey text */
+    #${PANEL_ID} .pfp-button:disabled {
         cursor: not-allowed;
-        box-shadow: none !important;
+        opacity: var(--pfp-disabled-opacity);
     }
 
-
-    .pfp-presets-section .pfp-preset-container {
-         display: flex;
-         flex-wrap: wrap; /* Allow buttons to wrap */
-         gap: 6px; /* Space between buttons */
-    }
-    .pfp-preset-btn {
-         background: #dddddd; /* Light grey */
-         color: #333;
-         border: 1px solid rgba(0, 0, 0, 0.1);
-         border-radius: 4px;
-         padding: 4px 8px; /* Smaller padding */
-         cursor: pointer;
-         font-size: 12px;
-         transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-     .pfp-preset-btn:hover {
-          background: #cccccc;
-          border-color: rgba(0, 0, 0, 0.2);
+     /* Style for Undo/Redo group to prevent excessive stretching */
+     #${PANEL_ID} .pfp-undo-redo-group .pfp-button {
+          flex-grow: 0; /* Prevent stretching */
+          flex-basis: auto; /* Allow content to determine size */
      }
-     .pfp-preset-btn:active { transform: scale(0.98); }
 
 
-    .pfp-footer {
-         background: rgba(0,0,0,0.03); /* Slightly transparent dark */
-         padding: 8px 18px; /* Adjusted padding */
-         font-size: 11px;
+    /* --- Presets Styles --- */
+    #${PANEL_ID} .pfp-preset-container h6 {
+         margin: 0 0 8px 0;
+         font-size: 13px;
          color: var(--pfp-label-color);
-         display: flex;
-         justify-content: space-between;
-         align-items: center;
-         border-top: 1px solid var(--pfp-border-color);
     }
-    .pfp-footer a {
-         color: var(--pfp-label-color);
-         text-decoration: none;
-         transition: color 0.2s ease;
+
+    #${PANEL_ID} .pfp-preset-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* Space between preset buttons */
     }
-     .pfp-footer a:hover {
-          color: var(--pfp-primary-color);
-          text-decoration: underline;
-     }
 
-
-    /* Toast Styles */
-    .pfp-toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        border-radius: 8px;
-        background: #333;
-        color: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        z-index: 1000002; /* Above panel */
-        opacity: 0; /* Start hidden */
-        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; /* Fade and slide */
-        transform: translateX(100px); /* Start off-screen */
-        min-width: 200px; /* Ensure readability */
-        max-width: calc(100vw - 40px);
-        box-sizing: border-box;
-    }
-     .pfp-toast.show {
-          opacity: 1; /* Fade in */
-          transform: translateX(0); /* Slide in */
-     }
-     .pfp-toast.pfp-info { background-color: var(--pfp-toast-info); }
-     .pfp-toast.pfp-success { background-color: var(--pfp-toast-success); }
-     .pfp-toast.pfp-warning { background-color: var(--pfp-toast-warning); color: #333; } /* Yellow */
-     .pfp-toast.pfp-error { background-color: var(--pfp-toast-error); }
-
-
-    /* Tippy.js Styles */
-    .tippy-box[data-theme="${TOOLTIP_THEME}"] {
-        background-color: #333; /* Darker background */
-        color: white;
+    #${PANEL_ID} .pfp-preset-button {
+        padding: 6px 10px;
+        background-color: rgba(94, 92, 255, 0.1); /* Light primary color background */
+        color: var(--pfp-primary-color);
+        border: 1px solid rgba(94, 92, 255, 0.2);
         border-radius: 4px;
-        font-size: 11px; /* Smaller tooltip font */
-        padding: 5px 8px;
-        line-height: 1.4;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        text-align: left; /* Ensure multi-line text aligns left */
+        cursor: pointer;
+        font-size: 13px;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+        text-align: left;
     }
-     /* Arrow */
-    .tippy-box[data-theme="${TOOLTIP_THEME}"][data-placement^="top"] > .tippy-arrow { border-top-color: #333; }
-    .tippy-box[data-theme="${TOOLTIP_THEME}"][data-placement^="bottom"] > .tippy-arrow { border-bottom-color: #333; }
-    .tippy-box[data-theme="${TOOLTIP_THEME}"][data-placement^="left"] > .tippy-arrow { border-left-color: #333; }
-    .tippy-box[data-theme="${TOOLTIP_THEME}"][data-placement^="right"] > .tippy-arrow { border-right-color: #333; }
+
+    #${PANEL_ID} .pfp-preset-button:hover {
+        background-color: rgba(94, 92, 255, 0.2);
+        border-color: rgba(94, 92, 255, 0.3);
+    }
 
 
-`);
+    /* --- Tippy.js Custom Theme --- */
+    .tippy-box[data-theme='${TOOLTIP_THEME}'] {
+        background-color: rgba(50, 50, 50, 0.95);
+        color: white;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        line-height: 1.4;
+        white-space: pre-wrap; /* Allow line breaks */
+    }
+
+    .tippy-box[data-theme='${TOOLTIP_THEME}'] .tippy-arrow {
+        color: rgba(50, 50, 50, 0.95);
+    }
+
+    /* Hide elements that are mode-specific by default */
+    .pfp-mode-specific {
+        display: none;
+    }
+
+    `);
 }
-
-// Helper function to convert CSS variable color to hex for SVG fill in select arrow
-// This is a workaround due to limitations with SVG data URIs and CSS variables.
-// It's not strictly necessary if using a fixed color for the arrow.
-/*
-function varToHex(varName) {
-   try {
-       const tempDiv = document.createElement('div');
-       tempDiv.style.setProperty('color', `var(${varName})`);
-       tempDiv.style.display = 'none';
-       document.body.appendChild(tempDiv);
-       const color = window.getComputedStyle(tempDiv).color;
-       document.body.removeChild(tempDiv);
-       // Convert rgb(x, y, z) to hex. Basic conversion, handles only basic rgb.
-       const rgbMatch = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-       if (rgbMatch) {
-           const toHex = (c) => parseInt(c).toString(16).padStart(2, '0');
-           return `${toHex(rgbMatch[1])}${toHex(rgbMatch[2])}${toHex(rgbMatch[3])}`;
-       }
-       if (color.startsWith('#')) return color.slice(1); // Handle hex
-       console.warn("Pack Filler Pro: Could not convert CSS variable color to hex for SVG:", color);
-       return '333'; // Default dark hex
-   } catch (e) {
-       console.warn("Pack Filler Pro: Error converting CSS variable color to hex:", e);
-       return '333'; // Default dark hex
-   }
-}
-*/
 
 // Note: This file defines the addPanelCSS function. It requires GM_addStyle
-// (granted in the main script) and constants (PANEL_ID, TOOLTIP_THEME).
+// (granted in the main script) and the PANEL_ID and TOOLTIP_THEME constants.
 // Ensure constants.js is required before ui-css.js.
