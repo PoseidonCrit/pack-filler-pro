@@ -29,6 +29,7 @@ function createPanel() {
         return panelElement; // Return existing panel if already created
     }
 
+    console.log('Pack Filler Pro: Attempting to create panel element...');
     // Create a temporary container to parse the panelHTML string.
     const panelContainer = document.createElement('div');
     panelContainer.innerHTML = panelHTML.trim(); // Use trim() to remove leading/trailing whitespace
@@ -73,12 +74,12 @@ function createPanel() {
     // Make the panel draggable by dragging its header.
     const headerElement = safeQuery('.pfp-header', panelElement); // safeQuery depends on dom-helpers.js
     if (headerElement) {
-        // Pass the draggable element and a callback to save the new position.
         makeDraggable(headerElement, panelElement, (newPos) => { // makeDraggable depends on ui-draggable.js
              // Callback executed after dragging ends.
              // Update the panelPos in the global config variable and save it.
              config.panelPos = newPos;
              saveConfig(); // saveConfig depends on config.js
+             console.log('Pack Filler Pro: Panel position saved.');
         });
     } else {
         console.warn("Pack Filler Pro: Panel header element not found, dragging disabled.");
@@ -102,12 +103,13 @@ function addPanelEventListeners() {
         return;
     }
 
+    console.log('Pack Filler Pro: Adding panel event listeners...');
     // Event Listener for the Close button: Hide the panel and save visibility state.
     safeQuery('.pfp-close', panelElement)?.addEventListener('click', () => { // safeQuery depends on dom-helpers.js
         panelElement.classList.add('hidden');
         config.panelVisible = false; // Update global config
         saveConfig(); // Save config (depends on config.js)
-        console.log('Pack Filler Pro: Panel hidden.');
+        console.log('Pack Filler Pro: Panel hidden, visibility saved.');
     });
 
     // Event Listeners for configuration input changes (mode, count, qty, range, checkboxes):
@@ -182,6 +184,8 @@ function updatePanelUI() {
         console.error('Pack Filler Pro: Cannot update UI, panel element not found.');
         return;
     }
+
+    // console.log('Pack Filler Pro: Updating panel UI...'); // Can be noisy
 
     // --- Update Input/Select/Checkbox Values from Config ---
 
@@ -291,6 +295,7 @@ function updatePanelUI() {
  * GM_registerMenuCommand (granted in main script)
  */
 function initPanel() {
+    console.log('Pack Filler Pro: Starting initPanel()...');
     // Attempt to create the panel element. Abort initialization if creation fails.
     const panel = createPanel(); // Depends on createPanel (defined above)
     if (!panel) {
@@ -317,8 +322,11 @@ function initPanel() {
     addTooltips(panel); // addTooltips depends on tooltips.js
 
      // Register a Tampermonkey menu command to easily toggle the panel's visibility.
+     console.log('Pack Filler Pro: Checking for GM_registerMenuCommand...');
      if (typeof GM_registerMenuCommand !== 'undefined') {
+          console.log('Pack Filler Pro: GM_registerMenuCommand available, registering menu command...');
          GM_registerMenuCommand("🎴 Toggle Pack Filler Pro Panel", () => {
+              console.log('Pack Filler Pro: Menu command triggered. panelElement:', panelElement);
               // Check if the panel element exists and toggle its 'hidden' class.
               if (panelElement) {
                    const isHidden = panelElement.classList.contains('hidden');
@@ -334,8 +342,9 @@ function initPanel() {
                    saveConfig(); // Save the updated visibility state (depends on config.js)
               } else {
                    // If the panel element is null, try initializing it again in case something went wrong earlier.
+                   console.warn('Pack Filler Pro: Panel element null in menu command, attempting re-initialization...');
                    showToast('Attempting to initialize panel...', 'info', 1500); // Depends on showToast
-                   initPanel(); // Recursive call
+                   initPanel(); // Recursive call - BE CAREFUL with recursion, but here it's guarded by panelElement check
                    // If initialization was successful this time, show the panel and save state.
                    if(panelElement && !config.panelVisible) { // Check config.panelVisible in case it was already true
                         panelElement.classList.remove('hidden');
