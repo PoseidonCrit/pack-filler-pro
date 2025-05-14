@@ -1,1 +1,456 @@
 
+/* pqh-styles-v12.0.0.css */
+/* Styles for the Pack Qty Helper UserScript v12.0.0 */
+/* Panel ID used in this CSS: #pqh-dynamic-panel-v12 */
+/* Status ID used in this CSS: #pqh-status-v12 */
+
+:root {
+    --pqh-bg-primary: rgba(28, 31, 41, 0.88); /* Slightly adjusted dark blue/grey */
+    --pqh-bg-secondary: rgba(38, 42, 53, 0.92);
+    --pqh-bg-tertiary: rgba(48, 53, 68, 0.95);
+    --pqh-border-color: rgba(85, 90, 110, 0.6);
+    --pqh-text-primary: #e8e8ec;
+    --pqh-text-secondary: #b0b0c0;
+    --pqh-accent-primary: #007bff; /* Standard vibrant blue */
+    --pqh-accent-secondary: #0056b3; /* Darker blue for hover */
+    --pqh-danger-primary: #e74c3c; /* Softer red */
+    --pqh-danger-secondary: #c0392b; /* Darker softer red */
+    --pqh-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --pqh-border-radius-sm: 5px; /* Slightly more rounded */
+    --pqh-border-radius-md: 7px;
+    --pqh-shadow-light: 0 3px 7px rgba(0,0,0,0.25);
+    --pqh-shadow-strong: 0 6px 18px rgba(0,0,0,0.35);
+    --pqh-panel-id-selector: #pqh-dynamic-panel-v12; /* CSS variable for panel ID */
+}
+
+/* --- Base Panel Styles --- */
+#pqh-dynamic-panel-v12 {
+    all: unset !important; /* Reset all inherited styles */
+    position: fixed !important;
+    bottom: 15px !important;
+    left: 15px !important;
+    right: 15px !important;
+    margin: auto !important;
+    max-width: 620px !important; /* Slightly wider for comfort */
+    z-index: 2147483647 !important; /* Max z-index */
+    background-color: var(--pqh-bg-primary) !important;
+    backdrop-filter: blur(12px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+    border: 1px solid var(--pqh-border-color) !important;
+    border-radius: var(--pqh-border-radius-md) !important;
+    box-shadow: var(--pqh-shadow-strong) !important;
+    color: var(--pqh-text-primary) !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    font-family: var(--pqh-font-family) !important;
+    font-size: 13.5px !important; /* Slightly increased base font size */
+    transition: max-height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.35s ease-in-out !important;
+    overflow: hidden !important;
+}
+
+#pqh-dynamic-panel-v12.pqh-collapsed {
+    max-height: 44px !important; /* Adjusted for header height */
+    background-color: rgba(35, 38, 48, 0.8) !important; /* More transparent when collapsed */
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    box-shadow: var(--pqh-shadow-light) !important;
+    border-color: transparent !important;
+}
+
+#pqh-dynamic-panel-v12.pqh-collapsed .pqh-body,
+#pqh-dynamic-panel-v12.pqh-collapsed .pqh-status {
+    display: none !important;
+}
+
+#pqh-dynamic-panel-v12.pqh-collapsed .pqh-header {
+    border-bottom: none !important;
+}
+
+#pqh-dynamic-panel-v12 * {
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.45 !important; /* Improved line height */
+}
+
+/* --- Top Bar & Toggle Button --- */
+.pqh-top-bar {
+    height: 24px; /* Slightly taller for toggle */
+    position: relative;
+    background-color: rgba(0,0,0,0.15); /* Subtle separator */
+}
+
+.pqh-toggle-btn {
+    position: absolute !important;
+    top: -3px !important; /* Adjusted for better visual alignment */
+    right: 1px !important;
+    width: 30px !important; /* Larger click target */
+    height: 30px !important;
+    background: transparent !important;
+    color: var(--pqh-text-secondary) !important;
+    border: none !important;
+    border-radius: var(--pqh-border-radius-sm) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.3s ease !important;
+    z-index: 10;
+    padding: 0 !important;
+}
+.pqh-toggle-btn:hover {
+    background-color: rgba(255,255,255,0.12) !important;
+    color: var(--pqh-text-primary) !important;
+}
+.pqh-toggle-btn svg {
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+#pqh-dynamic-panel-v12.pqh-collapsed .pqh-toggle-btn svg {
+    transform: rotate(-90deg) !important;
+}
+
+/* --- Header --- */
+.pqh-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important; /* Increased gap */
+    padding: 8px 14px !important; /* Adjusted padding */
+    background-color: var(--pqh-bg-secondary);
+    border-bottom: 1px solid var(--pqh-border-color);
+    flex-wrap: wrap;
+    min-height: 44px; /* Consistent with collapsed height */
+}
+.pqh-title {
+    margin-right: auto !important;
+    font-weight: 600;
+    font-size: 1.15em; /* Slightly larger title */
+    color: var(--pqh-text-primary);
+    letter-spacing: 0.5px;
+}
+.pqh-header .pqh-control-group { /* Controls within the header */
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+.pqh-header select,
+.pqh-header input[type="number"] {
+    padding: 6px 9px !important; /* Consistent padding */
+    min-width: 65px; /* Min width for number inputs */
+    flex-grow: 0;
+}
+.pqh-header .pqh-control-group[data-key="mode"] select,
+.pqh-header .pqh-control-group[data-key="operationMode"] select {
+    min-width: 90px; /* Wider select for mode/opMode */
+}
+.pqh-header input[type=number] {
+    width: 70px !important;
+    text-align: right;
+}
+.pqh-header label {
+    white-space: nowrap;
+    font-size: 0.9em;
+    color: var(--pqh-text-secondary);
+}
+
+/* --- Main Body & Controls --- */
+.pqh-body {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important; /* Increased gap */
+    padding: 14px !important; /* Increased padding */
+    background-color: transparent; /* Panel background shows through */
+}
+.pqh-controls {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; /* Wider min for controls */
+    gap: 12px 14px !important; /* row-gap column-gap */
+}
+.pqh-control-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important; /* Gap between label and input */
+}
+.pqh-control-group[data-type="checkbox"] { /* Checkbox groups layout */
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start;
+    gap: 8px !important; /* Gap between checkbox visual and its label */
+}
+.pqh-control-group label { /* Labels for controls in the main body */
+    color: var(--pqh-text-secondary) !important;
+    font-size: 0.92em; /* Slightly larger label text */
+    font-weight: 500;
+    display: block;
+    margin-bottom: 2px; /* Small space below label */
+}
+
+/* --- Input, Select, Checkbox Styling --- */
+#pqh-dynamic-panel-v12 input:not([type=checkbox]):not([type=button]):not([type=submit]),
+#pqh-dynamic-panel-v12 select {
+    width: 100% !important;
+    padding: 8px 10px !important; /* Increased padding for inputs */
+    background: var(--pqh-bg-tertiary) !important;
+    color: var(--pqh-text-primary) !important;
+    border: 1px solid var(--pqh-border-color) !important;
+    border-radius: var(--pqh-border-radius-sm) !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+#pqh-dynamic-panel-v12 input:not([type=checkbox]):not([type=button]):not([type=submit]):focus,
+#pqh-dynamic-panel-v12 select:focus {
+    border-color: var(--pqh-accent-primary) !important;
+    box-shadow: 0 0 0 3px rgba(0,123,255,.2) !important; /* Softer focus glow */
+    outline: none !important;
+}
+#pqh-dynamic-panel-v12 input::placeholder {
+    color: #888c99; /* Adjusted placeholder color */
+    opacity: 0.8;
+}
+
+/* Custom Checkbox */
+.pqh-checkbox-wrapper { /* Container for the hidden input and visual span */
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+.pqh-checkbox-wrapper input[type="checkbox"] { /* Hide native checkbox */
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.pqh-checkbox-wrapper > span { /* Visual part of the checkbox */
+    width: 18px; /* Slightly larger checkbox */
+    height: 18px;
+    border: 1.5px solid var(--pqh-border-color); /* Thicker border */
+    border-radius: var(--pqh-border-radius-sm);
+    display: inline-block;
+    background-color: var(--pqh-bg-tertiary);
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    margin-right: 7px; /* Space between checkbox visual and main label of the group */
+}
+.pqh-control-group[data-type="checkbox"] > label { /* Main label for checkbox group */
+    order: 1; /* Ensure label comes after the visual checkbox part in flex row */
+    cursor: pointer; /* Make label clickable for checkbox */
+}
+.pqh-checkbox-wrapper input[type="checkbox"]:checked + span {
+    background-color: var(--pqh-accent-primary);
+    border-color: var(--pqh-accent-primary);
+}
+.pqh-checkbox-wrapper input[type="checkbox"]:focus + span { /* Focus style for custom checkbox */
+     box-shadow: 0 0 0 3px rgba(0,123,255,.2) !important;
+}
+.pqh-checkbox-wrapper input[type="checkbox"]:checked + span::after { /* Tick mark */
+    content: '';
+    display: block;
+    width: 5px; /* Adjusted tick mark size */
+    height: 9px;
+    border: solid var(--pqh-text-primary); /* White tick */
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    top: 48%; /* Fine-tune tick position */
+}
+
+/* --- Buttons --- */
+.pqh-buttons {
+    display: flex !important;
+    gap: 12px !important; /* Increased gap between buttons */
+    border-top: 1px solid var(--pqh-border-color);
+    padding-top: 14px;
+    margin-top: 10px; /* Space above button row */
+}
+.pqh-btn {
+    padding: 9px 14px !important; /* Increased button padding */
+    border: none !important;
+    border-radius: var(--pqh-border-radius-sm) !important;
+    cursor: pointer !important;
+    flex-grow: 1 !important;
+    font-weight: 500;
+    font-size: 0.95em; /* Slightly larger button text */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    letter-spacing: 0.3px;
+}
+.pqh-btn:hover {
+    transform: translateY(-1.5px); /* Slightly more pronounced hover effect */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.pqh-btn:active {
+    transform: translateY(0px);
+    box-shadow: none;
+}
+.pqh-btn-primary {
+    background-color: var(--pqh-accent-primary) !important;
+    color: white !important;
+}
+.pqh-btn-primary:hover {
+    background-color: var(--pqh-accent-secondary) !important;
+}
+.pqh-btn-danger {
+    background-color: var(--pqh-danger-primary) !important;
+    color: white !important;
+}
+.pqh-btn-danger:hover {
+    background-color: var(--pqh-danger-secondary) !important;
+}
+.pqh-btn:disabled,
+.pqh-btn.pqh-disabled { /* Class for JS-controlled disabled state */
+    opacity: 0.6 !important; /* Slightly less opaque when disabled */
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* --- Status Message --- */
+.pqh-status {
+    font-size: 0.9em;
+    color: var(--pqh-text-secondary);
+    text-align: center;
+    padding: 10px 14px 8px; /* Adjusted padding */
+    border-top: 1px solid var(--pqh-border-color);
+    margin-top: 10px; /* Space above status */
+    min-height: 1.6em; /* Ensure space for text */
+    background-color: rgba(0,0,0,0.12); /* Subtle background for status */
+    border-bottom-left-radius: var(--pqh-border-radius-md); /* Match panel rounding */
+    border-bottom-right-radius: var(--pqh-border-radius-md);
+}
+
+/* --- Visibility & Disabled States (Controlled by JS data-attributes and classes) --- */
+/* Default hide for controls in the body when panel is expanded, JS will show them */
+#pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group {
+    display: none !important;
+}
+/* Global controls are always shown when panel is expanded */
+#pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group.pqh-global {
+    display: flex !important;
+}
+
+/* Mode-specific visibility (JS adds display:flex !important to these based on config) */
+/* Example: #pqh-dynamic-panel-v12[data-pqh-mode="random"]:not(.pqh-collapsed) .pqh-body .pqh-control-group.pqh-mode-random { display: flex !important; } */
+/* These specific selectors are now primarily handled by the JS logic setting display:flex directly on the elements. */
+/* The data-attributes on the main panel are used by JS to determine which elements to show/hide. */
+
+/* Styling for disabled control groups */
+.pqh-control-group.pqh-disabled {
+    opacity: 0.55 !important; /* More visible disabled state */
+    pointer-events: none !important; /* Prevent interaction */
+}
+.pqh-control-group.pqh-disabled label {
+    color: var(--pqh-text-secondary) !important;
+    opacity: 0.75; /* Make label slightly more faded */
+}
+.pqh-control-group.pqh-disabled input:not([type=checkbox]),
+.pqh-control-group.pqh-disabled select {
+    background: rgba(55, 60, 75, 0.75) !important; /* Darker disabled background */
+    cursor: not-allowed !important;
+    color: var(--pqh-text-secondary) !important;
+    border-color: rgba(70, 75, 90, 0.75) !important;
+}
+.pqh-control-group.pqh-disabled .pqh-checkbox-wrapper > span { /* Disabled custom checkbox */
+    background-color: rgba(55, 60, 75, 0.75) !important;
+    border-color: rgba(70, 75, 90, 0.75) !important;
+    cursor: not-allowed !important;
+}
+.pqh-control-group.pqh-disabled input::placeholder {
+    color: #777c88 !important; /* Darker placeholder for disabled inputs */
+}
+
+
+/* --- Potato Mode Styling --- */
+/* Applied to body via JS: document.body.classList.toggle('pqh-potato', config.enablePotatoMode) */
+body.pqh-potato #pqh-dynamic-panel-v12 {
+    border: 1px dashed #666 !important; /* Simpler border */
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: #1c1e22 !important; /* Solid, slightly lighter dark background */
+    color: #b0b0b0 !important;
+    animation: none !important;
+    transition: none !important; /* Disable transitions on panel itself */
+}
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-header,
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-body,
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-top-bar,
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-status {
+    background-color: transparent !important; /* No distinct backgrounds for sections */
+    border-color: #444 !important; /* Simpler border color for sections */
+}
+body.pqh-potato #pqh-dynamic-panel-v12 input:not([type="checkbox"]):not([type=button]):not([type=submit]),
+body.pqh-potato #pqh-dynamic-panel-v12 select {
+    background-color: #2a2c30 !important; /* Simpler input background */
+    border-color: #555 !important;
+    color: #b0b0b0 !important;
+    box-shadow: none !important; /* No focus glow */
+}
+body.pqh-potato .pqh-checkbox-wrapper > span { /* Potato mode custom checkbox */
+    background-color: #2a2c30 !important;
+    border-color: #555 !important;
+    box-shadow: none !important;
+}
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn {
+    background-color: #3a3c40 !important;
+    color: #b0b0b0 !important;
+    border: 1px solid #555 !important;
+    transition: none !important; /* No hover/active transitions */
+    transform: none !important;
+    box-shadow: none !important;
+}
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-primary {
+    background-color: #0056b3 !important; /* Darker primary for potato */
+}
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-danger {
+    background-color: #c0392b !important; /* Darker danger for potato */
+}
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-toggle-btn,
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-toggle-btn svg {
+    transition: none !important; /* No transition for toggle button icon */
+}
+
+/* Potato mode: Hide or simplify non-essential elements on the rest of the page */
+body.pqh-potato *:not(#pqh-dynamic-panel-v12):not([id^="pqh-"]):not(#pqh-dynamic-panel-v12 *)
+                  :not(script):not(style):not(link):not(meta):not(title) {
+    animation-duration: 0.01ms !important; /* Effectively disable animations */
+    animation-iteration-count: 1 !important;
+    transition-property: none !important; /* Disable transitions */
+    transform: none !important; /* Reset transforms */
+    filter: none !important; /* Reset filters */
+    /* Add other general disabling styles cautiously if needed */
+}
+body.pqh-potato *:not(#pqh-dynamic-panel-v12):not([id^="pqh-"]):not(#pqh-dynamic-panel-v12 *)
+    :is(img, video, iframe, canvas, audio, embed, object, picture,
+        [style*="background-image"], /* Be careful not to hide panel if it ever uses this */
+        [class*="animated"], [id*="animated"],
+        [class*="animation"], [id*="animation"],
+        [class*="transition"], [id*="transition"],
+        [class*="effect"], [id*="effect"],
+        [class*="parallax"], [id*="parallax"],
+        [class*="carousel"], [id*="carousel"],
+        [class*="slider"], [id*="slider"],
+        [class*="bg-video"], [class*="background-video"],
+        [class*="particles"], [id*="particles"],
+        [class*="popup"], [class*="modal"], /* Common classes for overlays */
+        [class*="ad-"], [id*="ad-"], /* Basic ad blocking attempt */
+        [class*="social"], [id*="social"] /* Basic social media widget hiding */
+    ) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important; /* Further ensure no layout space is taken */
+    height: 0 !important;
+    overflow: hidden !important;
+}
+/* Allow SVGs within the panel (e.g., icons) but hide others on the page in potato mode */
+body.pqh-potato svg:not(#pqh-dynamic-panel-v12 svg) {
+    display: none !important;
+    visibility: hidden !important;
+}
+
