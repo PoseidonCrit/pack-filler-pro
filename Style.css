@@ -1,4 +1,3 @@
-
 /* pqh-styles-v12.0.0.css */
 /* Styles for the Pack Qty Helper UserScript v12.0.0 */
 /* Panel ID used in this CSS: #pqh-dynamic-panel-v12 */
@@ -453,4 +452,3 @@ body.pqh-potato svg:not(#pqh-dynamic-panel-v12 svg) {
     display: none !important;
     visibility: hidden !important;
 }
-
