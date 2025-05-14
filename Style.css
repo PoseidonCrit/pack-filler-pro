@@ -14,6 +14,8 @@
     --pqh-accent-secondary: #0056b3; /* Darker blue for hover */
     --pqh-danger-primary: #e74c3c; /* Softer red */
     --pqh-danger-secondary: #c0392b; /* Darker softer red */
+    --pqh-utility-primary: #6c757d; /* Grey for utility buttons */
+    --pqh-utility-secondary: #5a6268; /* Darker grey for utility hover */
     --pqh-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --pqh-border-radius-sm: 5px; /* Slightly more rounded */
     --pqh-border-radius-md: 7px;
@@ -256,6 +258,38 @@
     top: 48%; /* Fine-tune tick position */
 }
 
+/* --- Quick Actions Section --- */
+.pqh-quick-actions {
+    display: flex !important;
+    align-items: center;
+    gap: 12px !important;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--pqh-border-color);
+    margin-bottom: 14px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+.pqh-quick-actions .pqh-control-group {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-grow: 0; /* Prevent inputs from growing too much */
+}
+.pqh-quick-actions input[type="number"] {
+    width: 60px !important; /* Smaller input for quick qty */
+    text-align: right;
+    padding: 6px 9px !important;
+}
+.pqh-quick-actions label {
+     white-space: nowrap;
+    font-size: 0.9em;
+    color: var(--pqh-text-secondary);
+}
+.pqh-quick-action-btn {
+    flex-grow: 1 !important; /* Allow buttons to grow */
+    min-width: 120px; /* Minimum width for quick action buttons */
+}
+
+
 /* --- Buttons --- */
 .pqh-buttons {
     display: flex !important;
@@ -263,6 +297,7 @@
     border-top: 1px solid var(--pqh-border-color);
     padding-top: 14px;
     margin-top: 10px; /* Space above button row */
+    flex-wrap: wrap; /* Allow buttons to wrap */
 }
 .pqh-btn {
     padding: 9px 14px !important; /* Increased button padding */
@@ -300,6 +335,23 @@
 .pqh-btn-danger:hover {
     background-color: var(--pqh-danger-secondary) !important;
 }
+.pqh-btn-secondary { /* New style for quick action buttons */
+    background-color: var(--pqh-bg-tertiary) !important;
+    color: var(--pqh-text-primary) !important;
+    border: 1px solid var(--pqh-border-color) !important;
+}
+.pqh-btn-secondary:hover {
+    background-color: rgba(48, 53, 68, 0.7) !important; /* Slightly more transparent hover */
+    border-color: var(--pqh-accent-primary) !important;
+}
+.pqh-btn-utility { /* New style for reset button */
+    background-color: var(--pqh-utility-primary) !important;
+    color: white !important;
+}
+.pqh-btn-utility:hover {
+    background-color: var(--pqh-utility-secondary) !important;
+}
+
 .pqh-btn:disabled,
 .pqh-btn.pqh-disabled { /* Class for JS-controlled disabled state */
     opacity: 0.6 !important; /* Slightly less opaque when disabled */
@@ -324,13 +376,16 @@
 
 /* --- Visibility & Disabled States (Controlled by JS data-attributes and classes) --- */
 /* Default hide for controls in the body when panel is expanded, JS will show them */
-#pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group {
+#pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group:not(.pqh-quick-action) {
     display: none !important;
 }
-/* Global controls are always shown when panel is expanded */
-#pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group.pqh-global {
-    display: flex !important;
+/* Global controls and quick action controls are always shown when panel is expanded */
+#pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group.pqh-global,
+#pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group.pqh-quick-action {
+    display: flex !important; /* Quick action controls are flex row */
+    flex-direction: row !important; /* Ensure quick actions are row layout */
 }
+
 
 /* Mode-specific visibility (JS adds display:flex !important to these based on config) */
 /* Example: #pqh-dynamic-panel-v12[data-pqh-mode="random"]:not(.pqh-collapsed) .pqh-body .pqh-control-group.pqh-mode-random { display: flex !important; } */
@@ -408,6 +463,17 @@ body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-primary {
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-danger {
     background-color: #c0392b !important; /* Darker danger for potato */
 }
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-secondary { /* Potato mode secondary button */
+    background-color: #2a2c30 !important;
+    border-color: #555 !important;
+    color: #b0b0b0 !important;
+}
+body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-utility { /* Potato mode utility button */
+    background-color: #5a6268 !important;
+    border-color: #555 !important;
+    color: #b0b0b0 !important;
+}
+
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-toggle-btn,
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-toggle-btn svg {
     transition: none !important; /* No transition for toggle button icon */
