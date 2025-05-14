@@ -1,28 +1,32 @@
-/* pqh-styles-v12.0.0.css */
-/* Styles for the Pack Qty Helper UserScript v12.0.0 */
+/* pqh-styles-v12.0.4.css */
+/* Styles for the Pack Qty Helper UserScript v12.0.4 */
 /* Panel ID used in this CSS: #pqh-dynamic-panel-v12 */
 /* Status ID used in this CSS: #pqh-status-v12 */
 
 :root {
-    --pqh-bg-primary: rgba(28, 31, 41, 0.88); /* Slightly adjusted dark blue/grey */
-    --pqh-bg-secondary: rgba(38, 42, 53, 0.92);
-    --pqh-bg-tertiary: rgba(48, 53, 68, 0.95);
-    --pqh-border-color: rgba(85, 90, 110, 0.6);
-    --pqh-text-primary: #e8e8ec;
-    --pqh-text-secondary: #b0b0c0;
-    --pqh-accent-primary: #007bff; /* Standard vibrant blue */
-    --pqh-accent-secondary: #0056b3; /* Darker blue for hover */
-    --pqh-danger-primary: #e74c3c; /* Softer red */
-    --pqh-danger-secondary: #c0392b; /* Darker softer red */
-    --pqh-utility-primary: #6c757d; /* Grey for utility buttons */
-    --pqh-utility-secondary: #5a6268; /* Darker grey for utility hover */
-    --pqh-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --pqh-border-radius-sm: 5px; /* Slightly more rounded */
-    --pqh-border-radius-md: 7px;
-    --pqh-shadow-light: 0 3px 7px rgba(0,0,0,0.25);
-    --pqh-shadow-strong: 0 6px 18px rgba(0,0,0,0.35);
+    --pqh-bg-primary: rgba(22, 25, 35, 0.95); /* Darker, less saturated */
+    --pqh-bg-secondary: rgba(32, 35, 46, 0.98); /* Darker */
+    --pqh-bg-tertiary: rgba(42, 46, 58, 0.98); /* Darker */
+    --pqh-border-color: rgba(70, 75, 90, 0.7); /* Slightly softer border */
+    --pqh-text-primary: #f0f0f5; /* Lighter primary text */
+    --pqh-text-secondary: #c8c8d0; /* Lighter secondary text */
+    --pqh-accent-primary: #00aaff; /* Brighter, modern blue */
+    --pqh-accent-secondary: #0088cc; /* Darker blue for hover */
+    --pqh-danger-primary: #ff6b6b; /* Brighter red */
+    --pqh-danger-secondary: #ee5253; /* Darker red */
+    --pqh-utility-primary: #a0a0a0; /* Neutral grey */
+    --pqh-utility-secondary: #808080; /* Darker grey */
+    --pqh-font-family: 'Inter', sans-serif; /* Modern sans-serif font */
+    --pqh-border-radius-sm: 4px; /* Slightly less rounded */
+    --pqh-border-radius-md: 6px;
+    --pqh-shadow-light: 0 2px 6px rgba(0,0,0,0.2);
+    --pqh-shadow-strong: 0 8px 20px rgba(0,0,0,0.4);
     --pqh-panel-id-selector: #pqh-dynamic-panel-v12; /* CSS variable for panel ID */
 }
+
+/* Load Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 
 /* --- Base Panel Styles --- */
 #pqh-dynamic-panel-v12 {
@@ -32,11 +36,11 @@
     left: 15px !important;
     right: 15px !important;
     margin: auto !important;
-    max-width: 620px !important; /* Slightly wider for comfort */
+    max-width: 650px !important; /* Slightly wider */
     z-index: 2147483647 !important; /* Max z-index */
     background-color: var(--pqh-bg-primary) !important;
-    backdrop-filter: blur(12px) saturate(160%) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(160%) !important;
+    backdrop-filter: blur(15px) saturate(180%) !important; /* Stronger blur/saturate */
+    -webkit-backdrop-filter: blur(15px) saturate(180%) !important;
     border: 1px solid var(--pqh-border-color) !important;
     border-radius: var(--pqh-border-radius-md) !important;
     box-shadow: var(--pqh-shadow-strong) !important;
@@ -45,16 +49,16 @@
     display: flex !important;
     flex-direction: column !important;
     font-family: var(--pqh-font-family) !important;
-    font-size: 13.5px !important; /* Slightly increased base font size */
-    transition: max-height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.35s ease-in-out !important;
+    font-size: 14px !important; /* Increased base font size */
+    transition: max-height 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.4s ease-in-out !important;
     overflow: hidden !important;
 }
 
 #pqh-dynamic-panel-v12.pqh-collapsed {
-    max-height: 44px !important; /* Adjusted for header height */
-    background-color: rgba(35, 38, 48, 0.8) !important; /* More transparent when collapsed */
-    backdrop-filter: blur(6px) !important;
-    -webkit-backdrop-filter: blur(6px) !important;
+    max-height: 48px !important; /* Adjusted for header height */
+    background-color: rgba(30, 33, 43, 0.9) !important; /* More transparent when collapsed */
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
     box-shadow: var(--pqh-shadow-light) !important;
     border-color: transparent !important;
 }
@@ -74,22 +78,22 @@
     font-size: inherit !important;
     margin: 0 !important;
     padding: 0 !important;
-    line-height: 1.45 !important; /* Improved line height */
+    line-height: 1.5 !important; /* Improved line height */
 }
 
 /* --- Top Bar & Toggle Button --- */
 .pqh-top-bar {
-    height: 24px; /* Slightly taller for toggle */
+    height: 28px; /* Taller for toggle */
     position: relative;
-    background-color: rgba(0,0,0,0.15); /* Subtle separator */
+    background-color: rgba(0,0,0,0.1); /* Subtle separator */
 }
 
 .pqh-toggle-btn {
     position: absolute !important;
-    top: -3px !important; /* Adjusted for better visual alignment */
-    right: 1px !important;
-    width: 30px !important; /* Larger click target */
-    height: 30px !important;
+    top: -4px !important; /* Adjusted */
+    right: 2px !important;
+    width: 34px !important; /* Larger click target */
+    height: 34px !important;
     background: transparent !important;
     color: var(--pqh-text-secondary) !important;
     border: none !important;
@@ -103,96 +107,97 @@
     padding: 0 !important;
 }
 .pqh-toggle-btn:hover {
-    background-color: rgba(255,255,255,0.12) !important;
+    background-color: rgba(255,255,255,0.15) !important;
     color: var(--pqh-text-primary) !important;
 }
 .pqh-toggle-btn svg {
     transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
 }
 #pqh-dynamic-panel-v12.pqh-collapsed .pqh-toggle-btn svg {
-    transform: rotate(-90deg) !important;
+    transform: rotate(-180deg) !important; /* Rotate 180 for chevron down */
 }
 
 /* --- Header --- */
 .pqh-header {
     display: flex !important;
     align-items: center !important;
-    gap: 12px !important; /* Increased gap */
-    padding: 8px 14px !important; /* Adjusted padding */
+    gap: 16px !important; /* Increased gap */
+    padding: 10px 16px !important; /* Adjusted padding */
     background-color: var(--pqh-bg-secondary);
     border-bottom: 1px solid var(--pqh-border-color);
     flex-wrap: wrap;
-    min-height: 44px; /* Consistent with collapsed height */
+    min-height: 48px; /* Consistent with collapsed height */
 }
 .pqh-title {
     margin-right: auto !important;
-    font-weight: 600;
-    font-size: 1.15em; /* Slightly larger title */
+    font-weight: 700; /* Bolder title */
+    font-size: 1.2em; /* Larger title */
     color: var(--pqh-text-primary);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 .pqh-header .pqh-control-group { /* Controls within the header */
     flex-direction: row !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 8px !important; /* Increased gap */
 }
 .pqh-header select,
 .pqh-header input[type="number"] {
-    padding: 6px 9px !important; /* Consistent padding */
-    min-width: 65px; /* Min width for number inputs */
+    padding: 7px 10px !important; /* Consistent padding */
+    min-width: 70px; /* Min width for number inputs */
     flex-grow: 0;
 }
 .pqh-header .pqh-control-group[data-key="mode"] select,
 .pqh-header .pqh-control-group[data-key="operationMode"] select {
-    min-width: 90px; /* Wider select for mode/opMode */
+    min-width: 100px; /* Wider select for mode/opMode */
 }
 .pqh-header input[type=number] {
-    width: 70px !important;
+    width: 75px !important;
     text-align: right;
 }
 .pqh-header label {
     white-space: nowrap;
-    font-size: 0.9em;
+    font-size: 0.95em; /* Slightly larger label */
     color: var(--pqh-text-secondary);
+    font-weight: 500;
 }
 
 /* --- Main Body & Controls --- */
 .pqh-body {
     display: flex !important;
     flex-direction: column !important;
-    gap: 14px !important; /* Increased gap */
-    padding: 14px !important; /* Increased padding */
+    gap: 18px !important; /* Increased gap */
+    padding: 16px !important; /* Increased padding */
     background-color: transparent; /* Panel background shows through */
 }
 .pqh-controls {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; /* Wider min for controls */
-    gap: 12px 14px !important; /* row-gap column-gap */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; /* Wider min for controls */
+    gap: 14px 16px !important; /* row-gap column-gap */
 }
 .pqh-control-group {
     display: flex !important;
     flex-direction: column !important;
-    gap: 5px !important; /* Gap between label and input */
+    gap: 6px !important; /* Gap between label and input */
 }
 .pqh-control-group[data-type="checkbox"] { /* Checkbox groups layout */
     flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-start;
-    gap: 8px !important; /* Gap between checkbox visual and its label */
+    gap: 10px !important; /* Gap between checkbox visual and its label */
 }
 .pqh-control-group label { /* Labels for controls in the main body */
     color: var(--pqh-text-secondary) !important;
-    font-size: 0.92em; /* Slightly larger label text */
+    font-size: 0.95em; /* Slightly larger label text */
     font-weight: 500;
     display: block;
-    margin-bottom: 2px; /* Small space below label */
+    margin-bottom: 3px; /* Small space below label */
 }
 
 /* --- Input, Select, Checkbox Styling --- */
 #pqh-dynamic-panel-v12 input:not([type=checkbox]):not([type=button]):not([type=submit]),
 #pqh-dynamic-panel-v12 select {
     width: 100% !important;
-    padding: 8px 10px !important; /* Increased padding for inputs */
+    padding: 9px 12px !important; /* Increased padding for inputs */
     background: var(--pqh-bg-tertiary) !important;
     color: var(--pqh-text-primary) !important;
     border: 1px solid var(--pqh-border-color) !important;
@@ -202,12 +207,12 @@
 #pqh-dynamic-panel-v12 input:not([type=checkbox]):not([type=button]):not([type=submit]):focus,
 #pqh-dynamic-panel-v12 select:focus {
     border-color: var(--pqh-accent-primary) !important;
-    box-shadow: 0 0 0 3px rgba(0,123,255,.2) !important; /* Softer focus glow */
+    box-shadow: 0 0 0 4px rgba(0,170,255,0.25) !important; /* Brighter, softer focus glow */
     outline: none !important;
 }
 #pqh-dynamic-panel-v12 input::placeholder {
-    color: #888c99; /* Adjusted placeholder color */
-    opacity: 0.8;
+    color: #a0a0a8; /* Adjusted placeholder color */
+    opacity: 0.9;
 }
 
 /* Custom Checkbox */
@@ -221,101 +226,105 @@
     width: 0;
     height: 0;
     position: absolute;
+    z-index: -1; /* Ensure it doesn't interfere with clicks */
 }
 .pqh-checkbox-wrapper > span { /* Visual part of the checkbox */
-    width: 18px; /* Slightly larger checkbox */
-    height: 18px;
-    border: 1.5px solid var(--pqh-border-color); /* Thicker border */
+    width: 20px; /* Larger checkbox */
+    height: 20px;
+    border: 2px solid var(--pqh-border-color); /* Thicker border */
     border-radius: var(--pqh-border-radius-sm);
     display: inline-block;
     background-color: var(--pqh-bg-tertiary);
     position: relative;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
-    margin-right: 7px; /* Space between checkbox visual and main label of the group */
+    margin-right: 8px; /* Space between checkbox visual and main label of the group */
+    flex-shrink: 0; /* Prevent shrinking in flex layout */
 }
 .pqh-control-group[data-type="checkbox"] > label { /* Main label for checkbox group */
     order: 1; /* Ensure label comes after the visual checkbox part in flex row */
     cursor: pointer; /* Make label clickable for checkbox */
+    flex-grow: 1; /* Allow label to take up space */
 }
 .pqh-checkbox-wrapper input[type="checkbox"]:checked + span {
     background-color: var(--pqh-accent-primary);
     border-color: var(--pqh-accent-primary);
 }
 .pqh-checkbox-wrapper input[type="checkbox"]:focus + span { /* Focus style for custom checkbox */
-     box-shadow: 0 0 0 3px rgba(0,123,255,.2) !important;
+     box-shadow: 0 0 0 4px rgba(0,170,255,0.25) !important;
 }
 .pqh-checkbox-wrapper input[type="checkbox"]:checked + span::after { /* Tick mark */
     content: '';
     display: block;
-    width: 5px; /* Adjusted tick mark size */
-    height: 9px;
+    width: 6px; /* Adjusted tick mark size */
+    height: 11px;
     border: solid var(--pqh-text-primary); /* White tick */
-    border-width: 0 2px 2px 0;
+    border-width: 0 2.5px 2.5px 0; /* Thicker tick */
     transform: rotate(45deg) translate(-50%, -50%);
     position: absolute;
     left: 50%;
-    top: 48%; /* Fine-tune tick position */
+    top: 50%; /* Fine-tune tick position */
 }
 
 /* --- Quick Actions Section --- */
 .pqh-quick-actions {
     display: flex !important;
     align-items: center;
-    gap: 12px !important;
-    padding-bottom: 14px;
+    gap: 14px !important; /* Increased gap */
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--pqh-border-color);
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 .pqh-quick-actions .pqh-control-group {
     flex-direction: row !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 8px !important; /* Increased gap */
     flex-grow: 0; /* Prevent inputs from growing too much */
 }
 .pqh-quick-actions input[type="number"] {
-    width: 60px !important; /* Smaller input for quick qty */
+    width: 65px !important; /* Slightly wider input for quick qty */
     text-align: right;
-    padding: 6px 9px !important;
+    padding: 7px 10px !important;
 }
 .pqh-quick-actions label {
      white-space: nowrap;
-    font-size: 0.9em;
+    font-size: 0.95em; /* Slightly larger label */
     color: var(--pqh-text-secondary);
+    font-weight: 500;
 }
 .pqh-quick-action-btn {
     flex-grow: 1 !important; /* Allow buttons to grow */
-    min-width: 120px; /* Minimum width for quick action buttons */
+    min-width: 130px; /* Minimum width for quick action buttons */
 }
 
 
 /* --- Buttons --- */
 .pqh-buttons {
     display: flex !important;
-    gap: 12px !important; /* Increased gap between buttons */
+    gap: 14px !important; /* Increased gap between buttons */
     border-top: 1px solid var(--pqh-border-color);
-    padding-top: 14px;
-    margin-top: 10px; /* Space above button row */
+    padding-top: 16px;
+    margin-top: 12px; /* Space above button row */
     flex-wrap: wrap; /* Allow buttons to wrap */
 }
 .pqh-btn {
-    padding: 9px 14px !important; /* Increased button padding */
+    padding: 10px 16px !important; /* Increased button padding */
     border: none !important;
     border-radius: var(--pqh-border-radius-sm) !important;
     cursor: pointer !important;
     flex-grow: 1 !important;
-    font-weight: 500;
-    font-size: 0.95em; /* Slightly larger button text */
+    font-weight: 600; /* Bolder button text */
+    font-size: 1em; /* Slightly larger button text */
     display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
 }
 .pqh-btn:hover {
-    transform: translateY(-1.5px); /* Slightly more pronounced hover effect */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transform: translateY(-2px); /* Slightly more pronounced hover effect */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 }
 .pqh-btn:active {
     transform: translateY(0px);
@@ -341,7 +350,7 @@
     border: 1px solid var(--pqh-border-color) !important;
 }
 .pqh-btn-secondary:hover {
-    background-color: rgba(48, 53, 68, 0.7) !important; /* Slightly more transparent hover */
+    background-color: rgba(42, 46, 58, 0.7) !important; /* Slightly more transparent hover */
     border-color: var(--pqh-accent-primary) !important;
 }
 .pqh-btn-utility { /* New style for reset button */
@@ -354,7 +363,7 @@
 
 .pqh-btn:disabled,
 .pqh-btn.pqh-disabled { /* Class for JS-controlled disabled state */
-    opacity: 0.6 !important; /* Slightly less opaque when disabled */
+    opacity: 0.5 !important; /* Slightly less opaque when disabled */
     cursor: not-allowed !important;
     transform: none !important;
     box-shadow: none !important;
@@ -365,11 +374,11 @@
     font-size: 0.9em;
     color: var(--pqh-text-secondary);
     text-align: center;
-    padding: 10px 14px 8px; /* Adjusted padding */
+    padding: 12px 16px 10px; /* Adjusted padding */
     border-top: 1px solid var(--pqh-border-color);
-    margin-top: 10px; /* Space above status */
-    min-height: 1.6em; /* Ensure space for text */
-    background-color: rgba(0,0,0,0.12); /* Subtle background for status */
+    margin-top: 12px; /* Space above status */
+    min-height: 1.8em; /* Ensure space for text */
+    background-color: rgba(0,0,0,0.15); /* Subtle background for status */
     border-bottom-left-radius: var(--pqh-border-radius-md); /* Match panel rounding */
     border-bottom-right-radius: var(--pqh-border-radius-md);
 }
@@ -384,6 +393,7 @@
 #pqh-dynamic-panel-v12:not(.pqh-collapsed) .pqh-body .pqh-control-group.pqh-quick-action {
     display: flex !important; /* Quick action controls are flex row */
     flex-direction: row !important; /* Ensure quick actions are row layout */
+    align-items: center !important; /* Vertically align quick action items */
 }
 
 
@@ -394,39 +404,39 @@
 
 /* Styling for disabled control groups */
 .pqh-control-group.pqh-disabled {
-    opacity: 0.55 !important; /* More visible disabled state */
+    opacity: 0.6 !important; /* More visible disabled state */
     pointer-events: none !important; /* Prevent interaction */
 }
 .pqh-control-group.pqh-disabled label {
     color: var(--pqh-text-secondary) !important;
-    opacity: 0.75; /* Make label slightly more faded */
+    opacity: 0.8; /* Make label slightly more faded */
 }
 .pqh-control-group.pqh-disabled input:not([type=checkbox]),
 .pqh-control-group.pqh-disabled select {
-    background: rgba(55, 60, 75, 0.75) !important; /* Darker disabled background */
+    background: rgba(50, 55, 70, 0.8) !important; /* Darker disabled background */
     cursor: not-allowed !important;
     color: var(--pqh-text-secondary) !important;
-    border-color: rgba(70, 75, 90, 0.75) !important;
+    border-color: rgba(65, 70, 85, 0.8) !important;
 }
 .pqh-control-group.pqh-disabled .pqh-checkbox-wrapper > span { /* Disabled custom checkbox */
-    background-color: rgba(55, 60, 75, 0.75) !important;
-    border-color: rgba(70, 75, 90, 0.75) !important;
+    background-color: rgba(50, 55, 70, 0.8) !important;
+    border-color: rgba(65, 70, 85, 0.8) !important;
     cursor: not-allowed !important;
 }
 .pqh-control-group.pqh-disabled input::placeholder {
-    color: #777c88 !important; /* Darker placeholder for disabled inputs */
+    color: #909098 !important; /* Darker placeholder for disabled inputs */
 }
 
 
 /* --- Potato Mode Styling --- */
 /* Applied to body via JS: document.body.classList.toggle('pqh-potato', config.enablePotatoMode) */
 body.pqh-potato #pqh-dynamic-panel-v12 {
-    border: 1px dashed #666 !important; /* Simpler border */
+    border: 1px dashed #888 !important; /* Simpler border */
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background-color: #1c1e22 !important; /* Solid, slightly lighter dark background */
-    color: #b0b0b0 !important;
+    background-color: #202020 !important; /* Solid, slightly lighter dark background */
+    color: #e0e0e0 !important;
     animation: none !important;
     transition: none !important; /* Disable transitions on panel itself */
 }
@@ -435,43 +445,43 @@ body.pqh-potato #pqh-dynamic-panel-v12 .pqh-body,
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-top-bar,
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-status {
     background-color: transparent !important; /* No distinct backgrounds for sections */
-    border-color: #444 !important; /* Simpler border color for sections */
+    border-color: #666 !important; /* Simpler border color for sections */
 }
 body.pqh-potato #pqh-dynamic-panel-v12 input:not([type="checkbox"]):not([type=button]):not([type=submit]),
 body.pqh-potato #pqh-dynamic-panel-v12 select {
-    background-color: #2a2c30 !important; /* Simpler input background */
-    border-color: #555 !important;
-    color: #b0b0b0 !important;
+    background-color: #303030 !important; /* Simpler input background */
+    border-color: #777 !important;
+    color: #e0e0e0 !important;
     box-shadow: none !important; /* No focus glow */
 }
 body.pqh-potato .pqh-checkbox-wrapper > span { /* Potato mode custom checkbox */
-    background-color: #2a2c30 !important;
-    border-color: #555 !important;
+    background-color: #303030 !important;
+    border-color: #777 !important;
     box-shadow: none !important;
 }
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn {
-    background-color: #3a3c40 !important;
-    color: #b0b0b0 !important;
-    border: 1px solid #555 !important;
+    background-color: #404040 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #777 !important;
     transition: none !important; /* No hover/active transitions */
     transform: none !important;
     box-shadow: none !important;
 }
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-primary {
-    background-color: #0056b3 !important; /* Darker primary for potato */
+    background-color: #0077cc !important; /* Darker primary for potato */
 }
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-danger {
-    background-color: #c0392b !important; /* Darker danger for potato */
+    background-color: #cc5555 !important; /* Darker danger for potato */
 }
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-secondary { /* Potato mode secondary button */
-    background-color: #2a2c30 !important;
-    border-color: #555 !important;
-    color: #b0b0b0 !important;
+    background-color: #303030 !important;
+    border-color: #777 !important;
+    color: #e0e0e0 !important;
 }
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-btn-utility { /* Potato mode utility button */
-    background-color: #5a6268 !important;
-    border-color: #555 !important;
-    color: #b0b0b0 !important;
+    background-color: #808080 !important;
+    border-color: #777 !important;
+    color: #e0e0e0 !important;
 }
 
 body.pqh-potato #pqh-dynamic-panel-v12 .pqh-toggle-btn,
